@@ -16,13 +16,15 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import cc.kkano.blog.AppGraph
 import cc.kkano.blog.R
 import cc.kkano.blog.navigation.FeatureMode
+import cc.kkano.blog.ui.common.KkColors
 import cc.kkano.blog.ui.article.ArticleDetailActivity
 import cc.kkano.blog.ui.common.applyBodyStyle
+import cc.kkano.blog.ui.common.applyInnerCard
 import cc.kkano.blog.ui.common.applyTitleStyle
 import cc.kkano.blog.ui.common.dp
+import cc.kkano.blog.ui.common.kkTopBar
 import cc.kkano.blog.ui.common.margin
 import com.bumptech.glide.Glide
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.JsonObject
@@ -50,28 +52,15 @@ class GenericListActivity : AppCompatActivity() {
     private fun buildContent(titleText: String): View {
         root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(getColor(R.color.kk_background))
+            setBackgroundColor(KkColors.background)
         }
-        val toolbar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(dp(14), dp(14), dp(14), dp(8))
-        }
-        root.addView(toolbar)
-        toolbar.addView(MaterialButton(this).apply {
-            text = "返回"
-            setTextColor(getColor(R.color.kk_text))
-            setBackgroundColor(getColor(R.color.kk_surface))
-            layoutParams = LinearLayout.LayoutParams(dp(84), dp(44))
-            setOnClickListener { finish() }
-        })
-        toolbar.addView(TextView(this).apply {
-            text = titleText
-            applyTitleStyle(22f)
-            gravity = android.view.Gravity.CENTER_VERTICAL
-            layoutParams = LinearLayout.LayoutParams(0, dp(44), 1f).apply {
-                leftMargin = dp(10)
-            }
-        })
+        root.addView(
+            kkTopBar(
+                title = titleText,
+                leftIcon = R.drawable.ic_back,
+                onLeftClick = { finish() },
+            ),
+        )
 
         refreshLayout = SwipeRefreshLayout(this).apply {
             setColorSchemeResources(R.color.kk_orange, R.color.kk_black)
@@ -82,6 +71,7 @@ class GenericListActivity : AppCompatActivity() {
 
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            setPadding(0, dp(10), 0, dp(12))
         }
         refreshLayout.addView(container)
 
@@ -138,25 +128,21 @@ class GenericListActivity : AppCompatActivity() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenericViewHolder {
             val card = MaterialCardView(parent.context).apply {
+                applyInnerCard(13)
                 layoutParams = RecyclerView.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                 ).apply {
-                    setMargins(dp(14), dp(7), dp(14), dp(7))
+                    setMargins(dp(11), dp(5), dp(11), dp(9))
                 }
-                radius = dp(18).toFloat()
-                cardElevation = dp(1).toFloat()
-                strokeColor = getColor(R.color.kk_line)
-                strokeWidth = dp(1)
-                setCardBackgroundColor(getColor(R.color.kk_surface))
             }
             val row = LinearLayout(parent.context).apply {
                 orientation = LinearLayout.HORIZONTAL
-                setPadding(dp(12), dp(12), dp(12), dp(12))
+                setPadding(dp(10), dp(10), dp(10), dp(10))
             }
             card.addView(row)
             val image = ImageView(parent.context).apply {
-                layoutParams = LinearLayout.LayoutParams(dp(72), dp(72))
+                layoutParams = LinearLayout.LayoutParams(dp(82), dp(72))
                 scaleType = ImageView.ScaleType.CENTER_CROP
                 setBackgroundResource(R.drawable.bg_image_placeholder)
             }
@@ -168,7 +154,7 @@ class GenericListActivity : AppCompatActivity() {
             }
             row.addView(column)
             val title = TextView(parent.context).apply {
-                applyTitleStyle(16f)
+                applyTitleStyle(15.5f)
                 maxLines = 2
             }
             column.addView(title)
@@ -179,7 +165,8 @@ class GenericListActivity : AppCompatActivity() {
             }
             column.addView(subtitle)
             val meta = TextView(parent.context).apply {
-                applyBodyStyle(12f)
+                applyBodyStyle(11.5f)
+                setTextColor(KkColors.softMuted)
                 maxLines = 1
                 margin(top = 8)
             }

@@ -2,6 +2,7 @@ package cc.kkano.blog.ui.article
 
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -12,19 +13,24 @@ import androidx.lifecycle.lifecycleScope
 import cc.kkano.blog.AppGraph
 import cc.kkano.blog.R
 import cc.kkano.blog.data.model.Article
+import cc.kkano.blog.ui.common.KkColors
 import cc.kkano.blog.ui.common.applyBodyStyle
+import cc.kkano.blog.ui.common.applyDataBox
 import cc.kkano.blog.ui.common.applyTitleStyle
+import cc.kkano.blog.ui.common.dataBox
 import cc.kkano.blog.ui.common.dp
+import cc.kkano.blog.ui.common.kkTopBar
 import cc.kkano.blog.ui.common.setHtmlText
 import com.bumptech.glide.Glide
-import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 class ArticleDetailActivity : AppCompatActivity() {
-    private lateinit var root: LinearLayout
+    private lateinit var contentRoot: LinearLayout
     private lateinit var title: TextView
     private lateinit var meta: TextView
+    private lateinit var coverCard: MaterialCardView
     private lateinit var cover: ImageView
     private lateinit var content: TextView
 
@@ -39,58 +45,84 @@ class ArticleDetailActivity : AppCompatActivity() {
         loadArticle(articleId)
     }
 
-    private fun buildContent(): ScrollView {
-        val scroll = ScrollView(this).apply {
-            setBackgroundColor(getColor(R.color.kk_background))
-        }
-        root = LinearLayout(this).apply {
+    private fun buildContent(): View {
+        val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(18), dp(18), dp(18), dp(28))
+            setBackgroundColor(KkColors.background)
         }
-        scroll.addView(root)
+        root.addView(
+            kkTopBar(
+                title = "文章详情",
+                leftIcon = R.drawable.ic_back,
+                onLeftClick = { finish() },
+            ),
+        )
 
-        val back = MaterialButton(this).apply {
-            text = "返回"
-            setTextColor(getColor(R.color.kk_text))
-            setBackgroundColor(getColor(R.color.kk_surface))
-            layoutParams = LinearLayout.LayoutParams(dp(92), dp(44))
-            setOnClickListener { finish() }
+        val scroll = ScrollView(this).apply {
+            setBackgroundColor(KkColors.background)
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0,
+                1f,
+            )
         }
-        root.addView(back)
+        root.addView(scroll)
 
-        title = TextView(this).apply {
-            text = "加载中..."
-            applyTitleStyle(25f)
-            setPadding(0, dp(18), 0, dp(8))
+        contentRoot = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, dp(12), 0, dp(20))
         }
-        root.addView(title)
+        scroll.addView(contentRoot)
 
-        meta = TextView(this).apply {
-            applyBodyStyle(13f)
-        }
-        root.addView(meta)
-
-        cover = ImageView(this).apply {
+        coverCard = MaterialCardView(this).apply {
+            radius = dp(17).toFloat()
+            cardElevation = dp(9).toFloat()
+            setCardBackgroundColor(KkColors.surface)
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 dp(210),
             ).apply {
-                topMargin = dp(18)
-                bottomMargin = dp(16)
+                setMargins(dp(11), 0, dp(11), dp(12))
             }
+        }
+        cover = ImageView(this).apply {
             scaleType = ImageView.ScaleType.CENTER_CROP
             setBackgroundResource(R.drawable.bg_image_placeholder)
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
         }
-        root.addView(cover)
+        coverCard.addView(cover)
+        contentRoot.addView(coverCard)
 
+        val box = dataBox(marginTop = 0).apply { applyDataBox(14) }
+        val column = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(15), dp(16), dp(15), dp(18))
+        }
+        box.addView(column)
+        title = TextView(this).apply {
+            text = "加载中..."
+            applyTitleStyle(24f)
+            setLineSpacing(dp(5).toFloat(), 1f)
+        }
+        column.addView(title)
+        meta = TextView(this).apply {
+            applyBodyStyle(12.5f)
+            setTextColor(KkColors.softMuted)
+            setPadding(0, dp(10), 0, dp(16))
+        }
+        column.addView(meta)
         content = TextView(this).apply {
             applyBodyStyle(16f)
-            setTextColor(getColor(R.color.kk_text))
-            setLineSpacing(dp(4).toFloat(), 1f)
+            setTextColor(KkColors.text)
+            setLineSpacing(dp(6).toFloat(), 1f)
             gravity = Gravity.START
         }
-        root.addView(content)
-        return scroll
+        column.addView(content)
+        contentRoot.addView(box)
+        return root
     }
 
     private fun loadArticle(id: Long) {
@@ -98,7 +130,7 @@ class ArticleDetailActivity : AppCompatActivity() {
             runCatching { AppGraph.repository.article(id) }
                 .onSuccess { render(it) }
                 .onFailure {
-                    Snackbar.make(root, it.message ?: "文章加载失败", Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(contentRoot, it.message ?: "文章加载失败", Snackbar.LENGTH_SHORT).show()
                 }
         }
     }
@@ -109,6 +141,7 @@ class ArticleDetailActivity : AppCompatActivity() {
         content.setHtmlText(article.content)
 
         val coverUrl = AppGraph.repository.absoluteUrl(article.coverPath())
+        coverCard.visibility = if (coverUrl.isNotBlank()) View.VISIBLE else View.GONE
         if (coverUrl.isNotBlank()) {
             Glide.with(cover)
                 .load(coverUrl)
@@ -116,7 +149,7 @@ class ArticleDetailActivity : AppCompatActivity() {
                 .centerCrop()
                 .into(cover)
         } else {
-            root.removeView(cover)
+            Glide.with(cover).clear(cover)
         }
     }
 

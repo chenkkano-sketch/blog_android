@@ -5,16 +5,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import cc.kkano.blog.R
 import cc.kkano.blog.navigation.FeatureLauncher
 import cc.kkano.blog.navigation.NativeRouteRegistry
-import cc.kkano.blog.ui.common.applyBodyStyle
-import cc.kkano.blog.ui.common.applyTitleStyle
+import cc.kkano.blog.ui.common.KkColors
+import cc.kkano.blog.ui.common.applyDataBox
+import cc.kkano.blog.ui.common.dataBox
 import cc.kkano.blog.ui.common.dp
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
+import cc.kkano.blog.ui.common.kkTopBar
+import cc.kkano.blog.ui.common.menuRow
+import cc.kkano.blog.ui.common.sectionHeader
 
 class FeatureHubActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,78 +25,70 @@ class FeatureHubActivity : AppCompatActivity() {
     }
 
     private fun buildContent(sectionFilter: String?): View {
-        val scroll = ScrollView(this).apply {
-            setBackgroundColor(getColor(R.color.kk_background))
-        }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(14), dp(16), dp(24))
+            setBackgroundColor(KkColors.background)
         }
-        scroll.addView(root)
+        root.addView(
+            kkTopBar(
+                title = sectionFilter ?: "全部功能",
+                leftIcon = R.drawable.ic_back,
+                onLeftClick = { finish() },
+            ),
+        )
 
-        val toolbar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
+        val scroll = ScrollView(this).apply {
+            setBackgroundColor(KkColors.background)
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0,
+                1f,
+            )
         }
-        root.addView(toolbar)
-        toolbar.addView(MaterialButton(this).apply {
-            text = "返回"
-            setTextColor(getColor(R.color.kk_text))
-            setBackgroundColor(getColor(R.color.kk_surface))
-            layoutParams = LinearLayout.LayoutParams(dp(84), dp(44))
-            setOnClickListener { finish() }
-        })
-        toolbar.addView(TextView(this).apply {
-            text = sectionFilter ?: "全部功能"
-            applyTitleStyle(22f)
-            gravity = android.view.Gravity.CENTER_VERTICAL
-            layoutParams = LinearLayout.LayoutParams(0, dp(44), 1f).apply {
-                leftMargin = dp(10)
-            }
-        })
+        root.addView(scroll)
+
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, dp(12), 0, dp(18))
+        }
+        scroll.addView(content)
 
         val groups = NativeRouteRegistry.grouped
             .filterKeys { sectionFilter == null || it == sectionFilter }
 
         groups.forEach { (section, features) ->
-            root.addView(TextView(this).apply {
-                text = section
-                applyTitleStyle(18f)
-                setPadding(0, dp(20), 0, dp(8))
-            })
-            features.forEach { spec ->
-                val card = MaterialCardView(this).apply {
-                    radius = dp(16).toFloat()
-                    cardElevation = dp(1).toFloat()
-                    strokeColor = getColor(R.color.kk_line)
-                    strokeWidth = dp(1)
-                    setCardBackgroundColor(getColor(R.color.kk_surface))
-                    layoutParams = LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ).apply {
-                        bottomMargin = dp(10)
-                    }
-                    setOnClickListener { FeatureLauncher.open(this@FeatureHubActivity, spec) }
-                }
-                val column = LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(dp(14), dp(12), dp(14), dp(12))
-                }
-                card.addView(column)
-                column.addView(TextView(this).apply {
-                    text = spec.title
-                    applyTitleStyle(16f)
-                })
-                column.addView(TextView(this).apply {
-                    text = spec.description.ifBlank { spec.route }
-                    applyBodyStyle(12f)
-                    setPadding(0, dp(5), 0, 0)
-                })
-                root.addView(card)
+            val box = dataBox(marginTop = 0).apply { applyDataBox(14) }
+            val column = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(0, dp(2), 0, dp(4))
             }
+            box.addView(column)
+            column.addView(sectionHeader(section))
+            features.forEach { spec ->
+                column.addView(
+                    menuRow(
+                        title = spec.title,
+                        subtitle = spec.description.ifBlank { spec.route },
+                        icon = iconForSection(section),
+                    ) {
+                        FeatureLauncher.open(this@FeatureHubActivity, spec)
+                    },
+                )
+            }
+            content.addView(box)
         }
 
-        return scroll
+        return root
+    }
+
+    private fun iconForSection(section: String): Int {
+        return when (section) {
+            "创作" -> R.drawable.ic_write
+            "内容" -> R.drawable.ic_image
+            "账户" -> R.drawable.ic_account
+            "管理" -> R.drawable.ic_settings
+            else -> R.drawable.ic_tools
+        }
     }
 
     companion object {

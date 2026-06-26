@@ -2,20 +2,23 @@ package cc.kkano.blog.ui.feature
 
 import android.os.Bundle
 import android.text.InputType
+import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import cc.kkano.blog.AppGraph
 import cc.kkano.blog.R
 import cc.kkano.blog.navigation.FeatureMode
-import cc.kkano.blog.ui.common.applyBodyStyle
-import cc.kkano.blog.ui.common.applyTitleStyle
+import cc.kkano.blog.ui.common.KkColors
+import cc.kkano.blog.ui.common.applyDataBox
+import cc.kkano.blog.ui.common.dataBox
 import cc.kkano.blog.ui.common.dp
+import cc.kkano.blog.ui.common.kkTopBar
+import cc.kkano.blog.ui.common.sectionHeader
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -37,32 +40,41 @@ class FeatureFormActivity : AppCompatActivity() {
     }
 
     private fun buildContent(titleText: String): View {
-        val scroll = ScrollView(this).apply {
-            setBackgroundColor(getColor(R.color.kk_background))
-        }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(18), dp(18), dp(18), dp(24))
+            setBackgroundColor(KkColors.background)
         }
-        scroll.addView(root)
+        root.addView(
+            kkTopBar(
+                title = titleText,
+                leftIcon = R.drawable.ic_back,
+                onLeftClick = { finish() },
+            ),
+        )
 
-        root.addView(MaterialButton(this).apply {
-            text = "返回"
-            setTextColor(getColor(R.color.kk_text))
-            setBackgroundColor(getColor(R.color.kk_surface))
-            layoutParams = LinearLayout.LayoutParams(dp(84), dp(44))
-            setOnClickListener { finish() }
-        })
-        root.addView(TextView(this).apply {
-            text = titleText
-            applyTitleStyle(24f)
-            setPadding(0, dp(20), 0, dp(6))
-        })
-        root.addView(TextView(this).apply {
-            text = "原生表单"
-            applyBodyStyle(13f)
-            setPadding(0, 0, 0, dp(14))
-        })
+        val scroll = ScrollView(this).apply {
+            setBackgroundColor(KkColors.background)
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0,
+                1f,
+            )
+        }
+        root.addView(scroll)
+
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, dp(12), 0, dp(20))
+        }
+        scroll.addView(content)
+
+        val box = dataBox(marginTop = 0).apply { applyDataBox(14) }
+        val formColumn = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), dp(4), dp(12), dp(14))
+        }
+        box.addView(formColumn)
+        formColumn.addView(sectionHeader("▌ 原生表单"))
 
         fieldsFor(mode).forEach { field ->
             val input = TextInputEditText(this).apply {
@@ -78,9 +90,10 @@ class FeatureFormActivity : AppCompatActivity() {
                 if (field.defaultValue.isNotBlank()) setText(field.defaultValue)
             }
             inputs[field.key] = input
-            root.addView(TextInputLayout(this).apply {
+            formColumn.addView(TextInputLayout(this).apply {
                 hint = field.label
                 boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
+                boxBackgroundColor = Color.parseColor("#F8F9FB")
                 setBoxCornerRadii(dp(14).toFloat(), dp(14).toFloat(), dp(14).toFloat(), dp(14).toFloat())
                 addView(input)
                 layoutParams = LinearLayout.LayoutParams(
@@ -94,8 +107,8 @@ class FeatureFormActivity : AppCompatActivity() {
 
         submitButton = MaterialButton(this).apply {
             text = submitText(mode)
-            setTextColor(getColor(R.color.kk_black))
-            setBackgroundColor(getColor(R.color.kk_orange))
+            setTextColor(KkColors.black)
+            setBackgroundColor(KkColors.orange)
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 dp(52),
@@ -104,8 +117,9 @@ class FeatureFormActivity : AppCompatActivity() {
             }
             setOnClickListener { submit() }
         }
-        root.addView(submitButton)
-        return scroll
+        formColumn.addView(submitButton)
+        content.addView(box)
+        return root
     }
 
     private fun submit() {
