@@ -1,0 +1,31 @@
+package cc.kkano.blog.data.api
+
+object ApiRoutes {
+    const val ARTICLES = "api/articles"
+    const val ARTICLE_CATEGORIES = "api/article-categories"
+    const val COMMENTS = "api/comments"
+    const val DYNAMICS = "api/dynamics"
+    const val EMOJI = "api/emoji"
+    const val FOOTPRINT = "api/footprint"
+    const val FOOTPRINT_MANAGE = "api/footprint-manage"
+    const val FRIEND_LINKS = "api/friend-links"
+    const val FRIEND_LINKS_MANAGE = "api/friend-links/manage"
+    const val LOGIN = "api/login"
+    const val MEDIA = "api/media"
+    const val MEDIA_MANAGE = "api/media-manage"
+    const val MEDIA_UPLOAD = "api/media/upload"
+    const val PROJECTS = "api/projects"
+    const val REFRESH = "api/refresh"
+    const val REGISTER = "api/register"
+    const val SEARCH_UNIAPP = "api/search/uniapp"
+    const val TAGS = "api/tags"
+    const val USER_INFO = "api/user/info"
+    const val USERS = "api/users"
+    const val USER_PROFILE = "api/user/profile"
+    const val USER_PASSWORD = "api/user/password"
+    const val FORGOT_PASSWORD = "api/auth/forgotPassword"
+    const val RESET_PASSWORD = "api/auth/resetPassword"
+
+    fun article(id: Long) = "api/articles/$id"
+    fun dynamicLike(id: Long) = "api/dynamics/$id/like"
+}

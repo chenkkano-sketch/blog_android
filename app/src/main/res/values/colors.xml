@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="kk_black">#15171C</color>
+    <color name="kk_orange">#FF7A36</color>
+    <color name="kk_background">#F4F5F7</color>
+    <color name="kk_surface">#FFFFFF</color>
+    <color name="kk_text">#252932</color>
+    <color name="kk_text_muted">#69707C</color>
+    <color name="kk_line">#E7E9EE</color>
+    <color name="kk_error">#FF4F5F</color>
+</resources>

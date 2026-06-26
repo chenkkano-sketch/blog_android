@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">盔盔的小世界</string>
+    <string name="nav_home">首页</string>
+    <string name="nav_dynamics">动态</string>
+    <string name="nav_tools">工具</string>
+    <string name="nav_account">账户</string>
+</resources>

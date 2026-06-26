@@ -1,0 +1,2 @@
+-keep class cc.kkano.blog.data.model.** { *; }
+-keepattributes Signature
