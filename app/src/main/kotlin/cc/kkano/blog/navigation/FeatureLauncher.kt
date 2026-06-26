@@ -6,7 +6,10 @@ import cc.kkano.blog.ui.feature.FeatureFormActivity
 import cc.kkano.blog.ui.feature.FeatureHubActivity
 import cc.kkano.blog.ui.feature.FeatureInfoActivity
 import cc.kkano.blog.ui.feature.GenericListActivity
+import cc.kkano.blog.ui.account.SocialMediaActivity
+import cc.kkano.blog.ui.dynamics.DynamicEditorActivity
 import cc.kkano.blog.ui.login.LoginActivity
+import cc.kkano.blog.ui.login.QrConfirmActivity
 
 object FeatureLauncher {
     fun openHub(context: Context, section: String? = null) {
@@ -19,6 +22,9 @@ object FeatureLauncher {
     fun open(context: Context, spec: FeatureSpec) {
         when {
             spec.route == "pages/user/login" -> context.startActivity(Intent(context, LoginActivity::class.java))
+            spec.route == "pages/home/dynamicsadd" -> context.startActivity(Intent(context, DynamicEditorActivity::class.java))
+            spec.route == "pages/user/scan" -> context.startActivity(Intent(context, QrConfirmActivity::class.java))
+            spec.route == "pages/user/media" -> context.startActivity(Intent(context, SocialMediaActivity::class.java))
             spec.mode.name.startsWith("FORM_") -> context.startActivity(formIntent(context, spec))
             spec.endpoint != null -> context.startActivity(listIntent(context, spec))
             else -> context.startActivity(infoIntent(context, spec))

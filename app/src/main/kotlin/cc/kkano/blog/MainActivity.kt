@@ -1,6 +1,7 @@
 package cc.kkano.blog
 
 import android.os.Bundle
+import android.content.Intent
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,7 @@ import cc.kkano.blog.ui.common.dp
 import cc.kkano.blog.ui.common.roundedDrawable
 import cc.kkano.blog.ui.dynamics.DynamicsFragment
 import cc.kkano.blog.ui.home.HomeFragment
+import cc.kkano.blog.ui.login.QrConfirmActivity
 import cc.kkano.blog.ui.tools.ToolsFragment
 
 class MainActivity : AppCompatActivity() {
@@ -34,7 +36,14 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             show(HomeFragment(), 0)
+            handleDeepLink(intent)
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleDeepLink(intent)
     }
 
     private fun buildBottomTabbar() {
@@ -129,6 +138,19 @@ class MainActivity : AppCompatActivity() {
             holder.icon.setColorFilter(if (active) KkColors.surface else KkColors.softMuted)
             holder.label.setTextColor(if (active) KkColors.black else KkColors.softMuted)
         }
+    }
+
+    private fun handleDeepLink(intent: Intent?) {
+        val uri = intent?.data ?: return
+        if (uri.scheme != "blogandroid") return
+        val sceneId = uri.getQueryParameter("scene_id")
+            ?: uri.getQueryParameter("sceneId")
+            ?: uri.getQueryParameter("scan")
+            ?: uri.lastPathSegment.orEmpty().takeIf { it.isNotBlank() && it != "scan" }
+        startActivity(
+            Intent(this, QrConfirmActivity::class.java)
+                .putExtra(QrConfirmActivity.EXTRA_SCENE_ID, sceneId.orEmpty()),
+        )
     }
 
     private data class TabConfig(

@@ -74,7 +74,7 @@ class FeatureFormActivity : AppCompatActivity() {
             setPadding(dp(12), dp(4), dp(12), dp(14))
         }
         box.addView(formColumn)
-        formColumn.addView(sectionHeader("▌ 原生表单"))
+        formColumn.addView(sectionHeader("▌ 填写信息"))
 
         fieldsFor(mode).forEach { field ->
             val input = TextInputEditText(this).apply {
@@ -124,7 +124,7 @@ class FeatureFormActivity : AppCompatActivity() {
 
     private fun submit() {
         if (endpoint.isBlank()) {
-            Toast.makeText(this, "此功能等待后端适配", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "当前页面没有可提交的数据", Toast.LENGTH_SHORT).show()
             return
         }
         val body = buildBody()
@@ -201,8 +201,8 @@ class FeatureFormActivity : AppCompatActivity() {
                 Field("category_id", "分类 ID", defaultValue = "1"),
             )
             FeatureMode.FORM_COMMENT -> listOf(
-                Field("type", "类型：1文章 2留言板 3动态", defaultValue = "2"),
-                Field("target_id", "目标 ID，可留空"),
+                Field("type", "类型：1文章 2留言板 3动态", defaultValue = intent.getStringExtra(EXTRA_DEFAULT_TYPE).orEmpty().ifBlank { "2" }),
+                Field("target_id", "目标 ID，可留空", defaultValue = intent.getStringExtra(EXTRA_DEFAULT_TARGET_ID).orEmpty()),
                 Field("content", "评论内容", multiline = true),
                 Field("nickname", "昵称，登录后可留空"),
                 Field("email", "邮箱，登录后可留空"),
@@ -257,5 +257,7 @@ class FeatureFormActivity : AppCompatActivity() {
         const val EXTRA_ENDPOINT = "extra_endpoint"
         const val EXTRA_MODE = "extra_mode"
         const val EXTRA_ROUTE = "extra_route"
+        const val EXTRA_DEFAULT_TYPE = "extra_default_type"
+        const val EXTRA_DEFAULT_TARGET_ID = "extra_default_target_id"
     }
 }

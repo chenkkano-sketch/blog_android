@@ -18,7 +18,7 @@ object NativeRouteRegistry {
         FeatureSpec("pages/user/avatar", "头像", "账户", ApiRoutes.USER_PROFILE, FeatureMode.FORM_PROFILE, "通过个人信息页更新头像地址"),
         FeatureSpec("pages/user/mailedit", "邮箱修改", "账户", "api/user/email/verify", FeatureMode.FORM_EMAIL, "发送验证码并绑定新邮箱"),
         FeatureSpec("pages/user/password", "修改密码", "账户", ApiRoutes.USER_PASSWORD, FeatureMode.FORM_PASSWORD, "修改登录密码"),
-        FeatureSpec("pages/user/media", "媒体资源", "账户", ApiRoutes.MEDIA, FeatureMode.LIST, "博客图片与媒体资源"),
+        FeatureSpec("pages/user/media", "社交媒体", "账户", description = "QQ 群、官网和 GitHub"),
         FeatureSpec("pages/user/scan", "扫码确认", "账户", "api/login/qr/confirm", FeatureMode.FORM_QR_CONFIRM, "网页扫码登录确认"),
         FeatureSpec("pages/user/inbox", "评论留言", "账户", ApiRoutes.COMMENTS, FeatureMode.LIST, "评论与留言列表"),
         FeatureSpec("pages/user/userpost", "我的文章", "账户", ApiRoutes.ARTICLES, FeatureMode.ARTICLE_LIST, "文章列表"),

@@ -32,6 +32,7 @@ import cc.kkano.blog.ui.common.margin
 import cc.kkano.blog.ui.common.menuRow
 import cc.kkano.blog.ui.common.roundedDrawable
 import cc.kkano.blog.ui.common.setRoundedBackground
+import cc.kkano.blog.ui.feature.FeatureInfoActivity
 import cc.kkano.blog.ui.login.LoginActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
@@ -272,7 +273,7 @@ class AccountFragment : Fragment() {
         box.addView(column)
         column.addView(context.menuRow("系统设置", icon = R.drawable.ic_settings) { openRoute("pages/user/setup") })
         column.addView(context.menuRow("社交媒体", icon = R.drawable.ic_link) { openRoute("pages/user/media") })
-        column.addView(context.menuRow("关于我们", icon = R.drawable.ic_comment) { openRoute("pages/user/agreement") })
+        column.addView(context.menuRow("关于我们", icon = R.drawable.ic_comment) { openAbout() })
         return box
     }
 
@@ -343,6 +344,16 @@ class AccountFragment : Fragment() {
 
     private fun openRoute(route: String) {
         NativeRouteRegistry.find(route)?.let { FeatureLauncher.open(requireContext(), it) }
+    }
+
+    private fun openAbout() {
+        startActivity(
+            Intent(requireContext(), FeatureInfoActivity::class.java)
+                .putExtra(FeatureInfoActivity.EXTRA_TITLE, "关于我们")
+                .putExtra(FeatureInfoActivity.EXTRA_DESCRIPTION, "盔盔的小世界\nchenkkano@foxmail.com")
+                .putExtra(FeatureInfoActivity.EXTRA_ROUTE, "pages/user/about")
+                .putExtra(FeatureInfoActivity.EXTRA_MODE, "LOCAL_SETTINGS"),
+        )
     }
 
     private data class Shortcut(

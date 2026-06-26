@@ -11,6 +11,8 @@ object ApiRoutes {
     const val FRIEND_LINKS = "api/friend-links"
     const val FRIEND_LINKS_MANAGE = "api/friend-links/manage"
     const val LOGIN = "api/login"
+    const val QR_MARK_SCANNED = "api/login/qr/scanned"
+    const val QR_CONFIRM = "api/login/qr/confirm"
     const val MEDIA = "api/media"
     const val MEDIA_MANAGE = "api/media-manage"
     const val MEDIA_UPLOAD = "api/media/upload"
@@ -27,5 +29,7 @@ object ApiRoutes {
     const val RESET_PASSWORD = "api/auth/resetPassword"
 
     fun article(id: Long) = "api/articles/$id"
+    fun articleView(id: Long) = "api/articles/$id/view"
     fun dynamicLike(id: Long) = "api/dynamics/$id/like"
+    fun dynamic(id: Long) = "api/dynamics/$id"
 }

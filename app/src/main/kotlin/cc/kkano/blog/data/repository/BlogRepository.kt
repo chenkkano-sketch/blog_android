@@ -4,6 +4,7 @@ import cc.kkano.blog.data.api.ApiException
 import cc.kkano.blog.data.api.ApiRoutes
 import cc.kkano.blog.data.api.BlogApiClient
 import cc.kkano.blog.data.model.Article
+import cc.kkano.blog.data.model.Comment
 import cc.kkano.blog.data.model.Dynamic
 import cc.kkano.blog.data.model.LoginPayload
 import cc.kkano.blog.data.model.User
@@ -28,12 +29,49 @@ class BlogRepository(
         return root.readDataObject(Article::class.java)
     }
 
+    suspend fun incrementArticleView(id: Long) {
+        runCatching { api.post(ApiRoutes.articleView(id), emptyMap<String, Any?>()) }
+    }
+
+    suspend fun articleComments(articleId: Long, page: Int = 1, limit: Int = 50): List<Comment> {
+        val root = api.get(
+            ApiRoutes.COMMENTS,
+            mapOf("type" to 1, "target_id" to articleId, "page" to page, "limit" to limit),
+        )
+        return root.readList("list", Comment::class.java)
+    }
+
     suspend fun dynamics(page: Int = 1, limit: Int = 20): List<Dynamic> {
         val root = api.get(
             ApiRoutes.DYNAMICS,
             mapOf("page" to page, "limit" to limit),
         )
         return root.readList("list", Dynamic::class.java)
+    }
+
+    suspend fun publishDynamic(body: Map<String, Any?>): JsonObject {
+        return api.post(ApiRoutes.DYNAMICS, body)
+    }
+
+    suspend fun updateDynamic(id: Long, body: Map<String, Any?>): JsonObject {
+        return api.put(ApiRoutes.dynamic(id), body)
+    }
+
+    suspend fun uploadMedia(fileName: String, bytes: ByteArray, mimeType: String): String {
+        val root = api.uploadFile(ApiRoutes.MEDIA_UPLOAD, fileName, bytes, mimeType)
+        val data = root["data"]?.takeIf { it.isJsonObject }?.asJsonObject
+        return data?.get("url")?.asString
+            ?: data?.get("path")?.asString
+            ?: root["url"]?.asString
+            ?: ""
+    }
+
+    suspend fun markQrScanned(sceneId: String): JsonObject {
+        return api.post(ApiRoutes.QR_MARK_SCANNED, mapOf("scene_id" to sceneId))
+    }
+
+    suspend fun confirmQrLogin(sceneId: String): JsonObject {
+        return api.post(ApiRoutes.QR_CONFIRM, mapOf("scene_id" to sceneId))
     }
 
     suspend fun login(email: String, password: String): User? {

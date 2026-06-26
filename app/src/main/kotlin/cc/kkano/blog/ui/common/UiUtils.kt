@@ -149,7 +149,7 @@ fun Context.kkTopBar(
         elevation = dp(6).toFloat()
         layoutParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            dp(64),
+            dp(56),
         )
     }
 

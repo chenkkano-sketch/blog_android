@@ -11,6 +11,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -45,6 +46,43 @@ class BlogApiClient(
 
     suspend fun delete(path: String, body: Any? = null): JsonObject {
         return request("DELETE", path, body = body)
+    }
+
+    suspend fun uploadFile(
+        path: String,
+        fileName: String,
+        bytes: ByteArray,
+        mimeType: String,
+    ): JsonObject = withContext(Dispatchers.IO) {
+        val body = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart(
+                "file",
+                fileName,
+                bytes.toRequestBody(mimeType.toMediaType()),
+            )
+            .build()
+        val request = Request.Builder()
+            .url(baseUrl.toHttpUrl().newBuilder().addPathSegments(path.trimStart('/')).build())
+            .header("Accept", "application/json")
+            .header("User-Agent", "KKanoBlogAndroid/${BuildConfig.VERSION_NAME}")
+            .apply {
+                val token = tokenStore.token
+                if (token.isNotBlank()) header("Authorization", "Bearer $token")
+            }
+            .post(body)
+            .build()
+        client.newCall(request).execute().use { response ->
+            val root = parseJson(response.body.string())
+            val apiCode = root["code"]?.asIntOrNull()
+            if (!response.isSuccessful) {
+                throw ApiException(root.messageOrDefault("上传失败：HTTP ${response.code}"), response.code)
+            }
+            if (apiCode != null && apiCode !in SUCCESS_CODES) {
+                throw ApiException(root.messageOrDefault("上传失败"), apiCode)
+            }
+            root
+        }
     }
 
     private suspend fun request(

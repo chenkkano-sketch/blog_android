@@ -14,6 +14,20 @@
         android:theme="@style/AppTheme">
 
         <activity
+            android:name=".ui.account.SocialMediaActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.dynamics.DynamicEditorActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.login.QrConfirmActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".ui.feature.FeatureFormActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
@@ -51,7 +65,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="ruleapp" />
+                <data android:scheme="blogandroid" />
             </intent-filter>
         </activity>
     </application>

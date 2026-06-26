@@ -20,6 +20,12 @@ data class Article(
     @SerializedName("view_count")
     val viewCount: Long? = null,
     val count: Long? = null,
+    @SerializedName("author_id")
+    val authorId: Long? = null,
+    @SerializedName("author_name")
+    val authorName: String? = "",
+    @SerializedName("author_avatar")
+    val authorAvatar: String? = "",
     val content: String? = "",
     val tags: List<Tag> = emptyList(),
 ) {
