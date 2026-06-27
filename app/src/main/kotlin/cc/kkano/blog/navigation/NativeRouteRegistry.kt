@@ -30,7 +30,7 @@ object NativeRouteRegistry {
         FeatureSpec("pages/user/password-manager", "密码管理", "账户", ApiRoutes.USER_PASSWORD, FeatureMode.FORM_PASSWORD, "密码修改"),
         FeatureSpec("pages/user/usercomments", "我的评论", "账户", ApiRoutes.COMMENTS, FeatureMode.LIST, "我的评论与回复"),
         FeatureSpec("pages/user/agreement", "用户协议", "账户", mode = FeatureMode.LOCAL_SETTINGS, description = "协议说明"),
-        FeatureSpec("pages/user/userbind", "账号绑定", "账户", "api/user/devices", FeatureMode.LIST, "登录设备与绑定状态"),
+        FeatureSpec("pages/user/userbind", "账号绑定", "账户", ApiRoutes.USER_DEVICES, FeatureMode.LIST, "第三方账号绑定状态与登录设备解绑"),
         FeatureSpec("pages/user/userlist", "用户管理", "管理", ApiRoutes.USERS, FeatureMode.LIST, "用户搜索、编辑与删除"),
 
         FeatureSpec("pages/contents/comments", "评论管理", "内容", ApiRoutes.COMMENTS, FeatureMode.LIST, "文章评论、留言板与动态评论管理"),
@@ -61,7 +61,7 @@ object NativeRouteRegistry {
         FeatureSpec("pages/manage/metas", "分类标签", "管理", ApiRoutes.ARTICLE_CATEGORIES, FeatureMode.LIST, "分类与标签管理"),
         FeatureSpec("pages/manage/metasedit", "分类标签编辑", "管理", ApiRoutes.ARTICLE_CATEGORIES, FeatureMode.LIST, "分类与标签编辑"),
         FeatureSpec("pages/manage/media", "图床管理", "管理", ApiRoutes.MEDIA_MANAGE, FeatureMode.LIST, "图床统计、搜索、分类、上传、瀑布流与批量删除"),
-        FeatureSpec("pages/manage/clean", "操作日志", "管理", "api/operation-logs", FeatureMode.LIST, "后台操作日志"),
+        FeatureSpec("pages/manage/clean", "操作日志", "管理", ApiRoutes.OPERATION_LOGS, FeatureMode.LIST, "搜索、分级筛选与日志详情"),
     )
 
     val grouped: Map<String, List<FeatureSpec>> = features.groupBy { it.section }

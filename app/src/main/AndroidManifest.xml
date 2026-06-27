@@ -42,6 +42,25 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.account.AccountFormActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.account.AccountBindingActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.account.SettingsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.account.AgreementActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.media.MediaManagerActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
@@ -62,6 +81,16 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ui.content.TaxonomyBrowserActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.content.ProjectShowcaseActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".ui.friend.FriendLinkManagerActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
@@ -73,6 +102,11 @@
 
         <activity
             android:name=".ui.manage.MetaManagerActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.manage.OperationLogActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 

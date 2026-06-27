@@ -25,6 +25,8 @@ object ApiRoutes {
     const val REGISTER = "api/register"
     const val SEARCH_UNIAPP = "api/search/uniapp"
     const val TAGS = "api/tags"
+    const val OPERATION_LOGS = "api/operation-logs"
+    const val USER_DEVICES = "api/user/devices"
     const val USER_INFO = "api/user/info"
     const val USERS = "api/users"
     const val USER_PROFILE = "api/user/profile"
@@ -44,4 +46,5 @@ object ApiRoutes {
     fun articleCategory(id: Long) = "api/article-categories/$id"
     fun footprintManage(id: Long) = "api/footprint-manage/$id"
     fun user(id: Long) = "api/users/$id"
+    fun userDevice(id: Long) = "api/user/devices/$id"
 }

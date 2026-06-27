@@ -223,6 +223,38 @@ class BlogRepository(
         return api.delete(ApiRoutes.user(id))
     }
 
+    suspend fun userDevices(page: Int = 1, limit: Int = 20, keyword: String = ""): List<JsonObject> {
+        return api.get(
+            ApiRoutes.USER_DEVICES,
+            buildMap {
+                put("page", page)
+                put("limit", limit)
+                if (keyword.isNotBlank()) put("keyword", keyword)
+            },
+        ).readJsonList()
+    }
+
+    suspend fun deleteUserDevice(id: Long): JsonObject {
+        return api.delete(ApiRoutes.userDevice(id))
+    }
+
+    suspend fun operationLogsRoot(
+        level: String = "",
+        page: Int = 1,
+        limit: Int = 20,
+        keyword: String = "",
+    ): JsonObject {
+        return api.get(
+            ApiRoutes.OPERATION_LOGS,
+            buildMap {
+                put("page", page)
+                put("limit", limit)
+                if (level.isNotBlank()) put("level", level)
+                if (keyword.isNotBlank()) put("keyword", keyword)
+            },
+        )
+    }
+
     suspend fun markQrScanned(sceneId: String): JsonObject {
         return api.post(ApiRoutes.QR_MARK_SCANNED, mapOf("scene_id" to sceneId))
     }
