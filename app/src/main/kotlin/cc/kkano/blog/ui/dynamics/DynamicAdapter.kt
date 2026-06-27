@@ -13,6 +13,7 @@ import cc.kkano.blog.AppGraph
 import cc.kkano.blog.R
 import cc.kkano.blog.data.model.Dynamic
 import cc.kkano.blog.ui.common.KkColors
+import cc.kkano.blog.ui.common.EmojiTextRenderer
 import cc.kkano.blog.ui.common.applyBodyStyle
 import cc.kkano.blog.ui.common.applyDataBox
 import cc.kkano.blog.ui.common.applyPillStyle
@@ -20,18 +21,34 @@ import cc.kkano.blog.ui.common.applyTitleStyle
 import cc.kkano.blog.ui.common.dp
 import cc.kkano.blog.ui.common.margin
 import cc.kkano.blog.ui.common.roundedDrawable
-import cc.kkano.blog.ui.common.setHtmlText
 import cc.kkano.blog.ui.common.setRoundedBackground
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
 
-class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() {
+class DynamicAdapter(
+    private val onEdit: (Dynamic) -> Unit,
+    private val onDelete: (Dynamic) -> Unit,
+    private val onLike: (Dynamic) -> Unit,
+    private val onComment: (Dynamic) -> Unit,
+) : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() {
     private val items = mutableListOf<Dynamic>()
     private val repository = AppGraph.repository
+    private var currentUserId: Long = 0
+    private var emojiMap: Map<String, String> = emptyMap()
 
     fun submitList(list: List<Dynamic>) {
         items.clear()
         items.addAll(list)
+        notifyDataSetChanged()
+    }
+
+    fun setCurrentUserId(id: Long) {
+        currentUserId = id
+        notifyDataSetChanged()
+    }
+
+    fun setEmojiMap(map: Map<String, String>) {
+        emojiMap = map
         notifyDataSetChanged()
     }
 
@@ -43,13 +60,13 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
             ).apply {
-                setMargins(context.dp(11), context.dp(6), context.dp(11), context.dp(12))
+                setMargins(context.dp(11), context.dp(10), context.dp(11), context.dp(16))
             }
         }
 
         val root = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(context.dp(14), context.dp(14), context.dp(14), context.dp(14))
+            setPadding(context.dp(16), context.dp(17), context.dp(16), context.dp(17))
         }
         card.addView(root)
 
@@ -60,7 +77,7 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
         root.addView(header)
 
         val avatar = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(context.dp(39), context.dp(39))
+            layoutParams = LinearLayout.LayoutParams(context.dp(43), context.dp(43))
             setBackgroundResource(R.drawable.bg_avatar)
             scaleType = ImageView.ScaleType.CENTER_CROP
             elevation = context.dp(4).toFloat()
@@ -70,12 +87,12 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
         val userColumn = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            margin(left = 10)
+            margin(left = 12)
         }
         header.addView(userColumn)
 
         val nickname = TextView(context).apply {
-            applyTitleStyle(15f)
+            applyTitleStyle(15.5f)
             maxLines = 1
         }
         userColumn.addView(nickname)
@@ -102,42 +119,42 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
 
         val more = TextView(context).apply {
             text = "⋯"
-            textSize = 22f
+            textSize = 23f
             gravity = Gravity.CENTER
             includeFontPadding = false
             setTextColor(KkColors.muted)
             setRoundedBackground(Color.parseColor("#F6F7F9"), 9)
-            layoutParams = LinearLayout.LayoutParams(context.dp(42), context.dp(34))
+            layoutParams = LinearLayout.LayoutParams(context.dp(44), context.dp(36))
         }
         header.addView(more)
 
         val title = TextView(context).apply {
-            applyTitleStyle(16.5f)
+            applyTitleStyle(17.5f)
             maxLines = 2
             setLineSpacing(context.dp(3).toFloat(), 1f)
-            margin(top = 14)
+            margin(top = 17)
         }
         root.addView(title)
 
         val content = TextView(context).apply {
-            applyBodyStyle(14.5f)
+            applyBodyStyle(15.2f)
             setTextColor(Color.parseColor("#3B414C"))
-            setLineSpacing(context.dp(4).toFloat(), 1f)
-            margin(top = 9)
+            setLineSpacing(context.dp(5).toFloat(), 1f)
+            margin(top = 11)
         }
         root.addView(content)
 
         val imageGrid = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            margin(top = 12)
+            margin(top = 15)
         }
         root.addView(imageGrid)
 
         val footer = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(0, context.dp(13), 0, 0)
-            margin(top = 8)
+            setPadding(0, context.dp(16), 0, 0)
+            margin(top = 10)
         }
         root.addView(footer)
         val views = actionPill(context, "0 浏览")
@@ -152,7 +169,7 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
             setTextColor(KkColors.muted)
             setPadding(context.dp(9), context.dp(7), context.dp(9), context.dp(7))
             setRoundedBackground(KkColors.soft, 10)
-            margin(top = 10)
+            margin(top = 12)
             visibility = android.view.View.GONE
         }
         root.addView(likeSummary)
@@ -170,6 +187,7 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
             likes,
             comments,
             likeSummary,
+            more,
         )
     }
 
@@ -184,7 +202,8 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
         holder.time.text = item.createdAt.orEmpty().ifBlank { "刚刚" }
         holder.title.text = item.title.orEmpty()
         holder.title.isVisible = !item.title.isNullOrBlank()
-        holder.content.setHtmlText(item.content)
+        EmojiTextRenderer.render(holder.title, item.title.orEmpty(), emojiMap, sizeDp = 34)
+        EmojiTextRenderer.render(holder.content, item.content.orEmpty(), emojiMap, sizeDp = 34)
         holder.views.text = "${item.views ?: 0} 浏览"
         holder.likes.text = "${item.likes ?: 0} 赞"
         holder.comments.text = "${item.commentsCount ?: 0} 评论"
@@ -223,6 +242,26 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
         }
 
         bindImages(holder.imageGrid, item.imagePaths())
+        holder.more.isVisible = currentUserId > 0 && currentUserId == item.userId
+        holder.more.setOnClickListener {
+            showOwnerMenu(holder.more, item)
+        }
+        holder.likes.setOnClickListener { onLike(item) }
+        holder.comments.setOnClickListener { onComment(item) }
+    }
+
+    private fun showOwnerMenu(anchor: android.view.View, item: Dynamic) {
+        val popup = android.widget.PopupMenu(anchor.context, anchor)
+        popup.menu.add("编辑动态")
+        popup.menu.add("删除动态")
+        popup.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.title.toString()) {
+                "编辑动态" -> onEdit(item)
+                "删除动态" -> onDelete(item)
+            }
+            true
+        }
+        popup.show()
     }
 
     private fun actionPill(context: android.content.Context, textValue: String): TextView {
@@ -233,7 +272,7 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
             setRoundedBackground(KkColors.soft, 999)
-            layoutParams = LinearLayout.LayoutParams(0, context.dp(34), 1f).apply {
+            layoutParams = LinearLayout.LayoutParams(0, context.dp(38), 1f).apply {
                 setMargins(context.dp(3), 0, context.dp(3), 0)
             }
         }
@@ -247,7 +286,7 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
 
         val visiblePaths = paths.take(3)
         container.orientation = LinearLayout.HORIZONTAL
-        val height = if (visiblePaths.size == 1) context.dp(210) else context.dp(119)
+        val height = if (visiblePaths.size == 1) context.dp(238) else context.dp(134)
         visiblePaths.forEach { path ->
             val card = MaterialCardView(context).apply {
                 radius = context.dp(11).toFloat()
@@ -291,5 +330,6 @@ class DynamicAdapter : RecyclerView.Adapter<DynamicAdapter.DynamicViewHolder>() 
         val likes: TextView,
         val comments: TextView,
         val likeSummary: TextView,
+        val more: TextView,
     ) : RecyclerView.ViewHolder(itemView)
 }

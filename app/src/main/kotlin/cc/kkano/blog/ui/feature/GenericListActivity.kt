@@ -1,5 +1,6 @@
 package cc.kkano.blog.ui.feature
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -17,13 +18,16 @@ import cc.kkano.blog.AppGraph
 import cc.kkano.blog.R
 import cc.kkano.blog.navigation.FeatureMode
 import cc.kkano.blog.ui.common.KkColors
+import cc.kkano.blog.ui.article.ArticleEditorActivity
 import cc.kkano.blog.ui.article.ArticleDetailActivity
+import cc.kkano.blog.ui.dynamics.DynamicEditorActivity
 import cc.kkano.blog.ui.common.applyBodyStyle
 import cc.kkano.blog.ui.common.applyInnerCard
 import cc.kkano.blog.ui.common.applyTitleStyle
 import cc.kkano.blog.ui.common.dp
 import cc.kkano.blog.ui.common.kkTopBar
 import cc.kkano.blog.ui.common.margin
+import cc.kkano.blog.ui.common.setRoundedBackground
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
@@ -38,14 +42,18 @@ class GenericListActivity : AppCompatActivity() {
     private lateinit var root: LinearLayout
     private var endpoint: String = ""
     private var mode: FeatureMode = FeatureMode.LIST
+    private var route: String = ""
+    private var titleText: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         endpoint = intent.getStringExtra(EXTRA_ENDPOINT).orEmpty()
+        route = intent.getStringExtra(EXTRA_ROUTE).orEmpty()
+        titleText = intent.getStringExtra(EXTRA_TITLE).orEmpty().ifBlank { "列表" }
         mode = runCatching {
             FeatureMode.valueOf(intent.getStringExtra(EXTRA_MODE).orEmpty())
         }.getOrDefault(FeatureMode.LIST)
-        setContentView(buildContent(intent.getStringExtra(EXTRA_TITLE).orEmpty().ifBlank { "列表" }))
+        setContentView(buildContent(titleText))
         load()
     }
 
@@ -58,7 +66,9 @@ class GenericListActivity : AppCompatActivity() {
             kkTopBar(
                 title = titleText,
                 leftIcon = R.drawable.ic_back,
+                rightIcon = if (isManageable()) R.drawable.ic_add else null,
                 onLeftClick = { finish() },
+                onRightClick = { openCreate() },
             ),
         )
 
@@ -113,8 +123,24 @@ class GenericListActivity : AppCompatActivity() {
                 .onFailure {
                     refreshLayout.isRefreshing = false
                     Snackbar.make(root, it.message ?: "加载失败", Snackbar.LENGTH_SHORT).show()
-                }
+            }
         }
+    }
+
+    private fun isManageable(): Boolean {
+        return route.startsWith("pages/manage/") ||
+            route.contains("-manage") ||
+            endpoint.contains("/admin/") ||
+            endpoint.endsWith("-manage")
+    }
+
+    private fun openCreate() {
+        if (!isManageable()) return
+        startActivity(
+            Intent(this, GenericEditActivity::class.java)
+                .putExtra(GenericEditActivity.EXTRA_TITLE, titleText)
+                .putExtra(GenericEditActivity.EXTRA_ENDPOINT, endpoint),
+        )
     }
 
     inner class GenericAdapter(private val mode: FeatureMode) : RecyclerView.Adapter<GenericViewHolder>() {
@@ -171,7 +197,17 @@ class GenericListActivity : AppCompatActivity() {
                 margin(top = 8)
             }
             column.addView(meta)
-            return GenericViewHolder(card, image, title, subtitle, meta)
+            val actions = LinearLayout(parent.context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                margin(top = 10)
+                visibility = View.GONE
+            }
+            column.addView(actions)
+            val edit = smallAction("编辑")
+            val delete = smallAction("删除", danger = true)
+            actions.addView(edit)
+            actions.addView(delete)
+            return GenericViewHolder(card, image, title, subtitle, meta, actions, edit, delete)
         }
 
         override fun getItemCount(): Int = items.size
@@ -203,6 +239,80 @@ class GenericListActivity : AppCompatActivity() {
                     )
                 }
             }
+            holder.actions.isVisible = isManageable()
+            holder.edit.setOnClickListener { openEdit(item) }
+            holder.delete.setOnClickListener { confirmDelete(item) }
+        }
+
+        private fun smallAction(textValue: String, danger: Boolean = false): TextView {
+            return TextView(this@GenericListActivity).apply {
+                text = textValue
+                applyTitleStyle(12f)
+                gravity = android.view.Gravity.CENTER
+                setTextColor(if (danger) android.graphics.Color.WHITE else KkColors.black)
+                setRoundedBackground(if (danger) KkColors.danger else KkColors.orange, 999)
+                layoutParams = LinearLayout.LayoutParams(0, dp(34), 1f).apply {
+                    setMargins(dp(3), 0, dp(3), 0)
+                }
+            }
+        }
+
+        private fun openEdit(item: JsonObject) {
+            val id = idOf(item)
+            when {
+                endpoint.contains("articles") && id > 0L -> {
+                    startActivity(
+                        Intent(this@GenericListActivity, ArticleEditorActivity::class.java)
+                            .putExtra(ArticleEditorActivity.EXTRA_ARTICLE_ID, id),
+                    )
+                }
+                endpoint.contains("dynamics") && id > 0L -> {
+                    startActivity(
+                        Intent(this@GenericListActivity, DynamicEditorActivity::class.java)
+                            .putExtra(DynamicEditorActivity.EXTRA_DYNAMIC_ID, id),
+                    )
+                }
+                else -> {
+                    startActivity(
+                        Intent(this@GenericListActivity, GenericEditActivity::class.java)
+                            .putExtra(GenericEditActivity.EXTRA_TITLE, titleText)
+                            .putExtra(GenericEditActivity.EXTRA_ENDPOINT, endpoint)
+                            .putExtra(GenericEditActivity.EXTRA_ITEM_JSON, AppGraph.apiClient.gson.toJson(item)),
+                    )
+                }
+            }
+        }
+
+        private fun confirmDelete(item: JsonObject) {
+            val id = idOf(item)
+            if (id <= 0L) {
+                Snackbar.make(root, "没有可删除的 ID", Snackbar.LENGTH_SHORT).show()
+                return
+            }
+            AlertDialog.Builder(this@GenericListActivity)
+                .setTitle("确认删除")
+                .setMessage("确定要删除「${titleOf(item)}」吗？")
+                .setNegativeButton("取消", null)
+                .setPositiveButton("删除") { _, _ ->
+                    lifecycleScope.launch {
+                        runCatching { repository.delete("${endpoint.trimEnd('/')}/$id") }
+                            .onSuccess {
+                                Snackbar.make(root, "删除成功", Snackbar.LENGTH_SHORT).show()
+                                load()
+                            }
+                            .onFailure {
+                                Snackbar.make(root, it.message ?: "删除失败", Snackbar.LENGTH_SHORT).show()
+                            }
+                    }
+                }
+                .show()
+        }
+
+        private fun idOf(item: JsonObject): Long {
+            return runCatching { item["id"]?.asLong }.getOrNull()
+                ?: runCatching { item["uid"]?.asLong }.getOrNull()
+                ?: runCatching { item["coid"]?.asLong }.getOrNull()
+                ?: 0L
         }
 
         private fun titleOf(item: JsonObject): String {
@@ -246,6 +356,9 @@ class GenericListActivity : AppCompatActivity() {
         val title: TextView,
         val subtitle: TextView,
         val meta: TextView,
+        val actions: LinearLayout,
+        val edit: TextView,
+        val delete: TextView,
     ) : RecyclerView.ViewHolder(itemView)
 
     companion object {

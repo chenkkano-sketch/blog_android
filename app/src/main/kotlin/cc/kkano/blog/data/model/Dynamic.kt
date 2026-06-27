@@ -7,9 +7,15 @@ data class Dynamic(
     val id: Long = 0,
     @SerializedName("user_id")
     val userId: Long = 0,
+    val type: Int? = 1,
     val title: String? = "",
     val content: String? = "",
     val images: JsonElement? = null,
+    val bvid: String? = "",
+    @SerializedName("external_url")
+    val externalUrl: String? = "",
+    @SerializedName("external_title")
+    val externalTitle: String? = "",
     val views: Long? = 0,
     val likes: Long? = 0,
     @SerializedName("comments_count")

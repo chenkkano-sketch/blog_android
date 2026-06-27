@@ -43,6 +43,7 @@ class DynamicEditorActivity : AppCompatActivity() {
     private val selectedImages = mutableListOf<String>()
     private val typeLabels = listOf("图文", "文字", "B站视频", "外部引用")
     private var type = 1
+    private var dynamicId: Long = 0L
 
     private lateinit var typeRow: LinearLayout
     private lateinit var titleInput: EditText
@@ -65,7 +66,9 @@ class DynamicEditorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        dynamicId = intent.getLongExtra(EXTRA_DYNAMIC_ID, 0L)
         setContentView(buildContent())
+        if (dynamicId > 0L) loadDynamic(dynamicId)
     }
 
     private fun buildContent(): View {
@@ -75,7 +78,7 @@ class DynamicEditorActivity : AppCompatActivity() {
         }
         root.addView(
             kkTopBar(
-                title = "发布动态",
+                title = if (dynamicId > 0L) "编辑动态" else "发布动态",
                 leftIcon = R.drawable.ic_back,
                 onLeftClick = { finish() },
             ),
@@ -165,7 +168,7 @@ class DynamicEditorActivity : AppCompatActivity() {
         column.addView(statusText)
 
         submitButton = TextView(this).apply {
-            text = "发布动态"
+            text = if (dynamicId > 0L) "保存修改" else "发布动态"
             applyTitleStyle(16f)
             setTextColor(KkColors.black)
             gravity = Gravity.CENTER
@@ -185,6 +188,33 @@ class DynamicEditorActivity : AppCompatActivity() {
         updateConditionalFields()
         renderImageGrid()
         return root
+    }
+
+    private fun loadDynamic(id: Long) {
+        submitButton.isEnabled = false
+        statusText.text = "加载中..."
+        lifecycleScope.launch {
+            runCatching { repository.dynamic(id) }
+                .onSuccess { dynamic ->
+                    type = dynamic.type ?: dynamic.typeFromContent()
+                    titleInput.setText(dynamic.title.orEmpty())
+                    contentInput.setText(dynamic.content.orEmpty())
+                    bvidInput.setText(dynamic.bvid.orEmpty())
+                    externalUrlInput.setText(dynamic.externalUrl.orEmpty())
+                    externalTitleInput.setText(dynamic.externalTitle.orEmpty())
+                    selectedImages.clear()
+                    selectedImages.addAll(dynamic.imagePaths())
+                    buildTypeChips()
+                    updateConditionalFields()
+                    renderImageGrid()
+                    statusText.text = ""
+                }
+                .onFailure {
+                    statusText.text = ""
+                    Toast.makeText(this@DynamicEditorActivity, it.message ?: "动态加载失败", Toast.LENGTH_SHORT).show()
+                }
+            submitButton.isEnabled = true
+        }
     }
 
     private fun buildTypeChips() {
@@ -633,18 +663,45 @@ class DynamicEditorActivity : AppCompatActivity() {
             }
         }
         submitButton.isEnabled = false
-        submitButton.text = "发布中..."
+        submitButton.text = if (dynamicId > 0L) "保存中..." else "发布中..."
         lifecycleScope.launch {
-            runCatching { repository.publishDynamic(body) }
+            val request = if (dynamicId > 0L) {
+                runCatching { repository.updateDynamic(dynamicId, body) }
+            } else {
+                runCatching { repository.publishDynamic(body) }
+            }
+            request
                 .onSuccess {
-                    Toast.makeText(this@DynamicEditorActivity, "发布成功", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@DynamicEditorActivity,
+                        if (dynamicId > 0L) "保存成功" else "发布成功",
+                        Toast.LENGTH_SHORT,
+                    ).show()
                     finish()
                 }
                 .onFailure {
-                    Toast.makeText(this@DynamicEditorActivity, it.message ?: "发布失败", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@DynamicEditorActivity,
+                        it.message ?: if (dynamicId > 0L) "保存失败" else "发布失败",
+                        Toast.LENGTH_SHORT,
+                    ).show()
                 }
             submitButton.isEnabled = true
-            submitButton.text = "发布动态"
+            submitButton.text = if (dynamicId > 0L) "保存修改" else "发布动态"
         }
+    }
+
+    private fun cc.kkano.blog.data.model.Dynamic.typeFromContent(): Int {
+        val hasImages = imagePaths().isNotEmpty()
+        val contentValue = content.orEmpty()
+        return when {
+            contentValue.contains("bvid=", ignoreCase = true) -> 3
+            hasImages -> 1
+            else -> 2
+        }
+    }
+
+    companion object {
+        const val EXTRA_DYNAMIC_ID = "extra_dynamic_id"
     }
 }

@@ -1,5 +1,6 @@
 package cc.kkano.blog.ui.article
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -52,6 +53,8 @@ class ArticleDetailActivity : AppCompatActivity() {
     private lateinit var tagsRow: LinearLayout
     private lateinit var commentsBox: MaterialCardView
     private lateinit var commentsColumn: LinearLayout
+    private lateinit var ownerActions: LinearLayout
+    private var currentArticle: Article? = null
     private var articleId: Long = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,7 +95,7 @@ class ArticleDetailActivity : AppCompatActivity() {
 
         contentRoot = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(0, dp(12), 0, dp(20))
+            setPadding(0, dp(10), 0, dp(88))
         }
         scroll.addView(contentRoot)
 
@@ -100,6 +103,7 @@ class ArticleDetailActivity : AppCompatActivity() {
             radius = dp(17).toFloat()
             cardElevation = dp(9).toFloat()
             setCardBackgroundColor(KkColors.surface)
+            visibility = View.GONE
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 dp(210),
@@ -118,10 +122,18 @@ class ArticleDetailActivity : AppCompatActivity() {
         coverCard.addView(cover)
         contentRoot.addView(coverCard)
 
-        val infoBox = dataBox(marginTop = 0).apply { applyDataBox(14) }
+        val infoBox = dataBox(marginTop = 0).apply {
+            applyDataBox(0)
+            cardElevation = 0f
+            strokeWidth = 0
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
+        }
         val infoColumn = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(15), dp(18), dp(15), dp(16))
+            setPadding(dp(15), dp(20), dp(15), dp(14))
         }
         infoBox.addView(infoColumn)
         title = TextView(this).apply {
@@ -137,15 +149,30 @@ class ArticleDetailActivity : AppCompatActivity() {
         }
         infoColumn.addView(meta)
         infoColumn.addView(buildAuthorCard())
+        ownerActions = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            visibility = View.GONE
+            setPadding(0, dp(12), 0, 0)
+            addView(ownerButton("修改文章") { openEditor() })
+            addView(ownerButton("删除文章", danger = true) { confirmDeleteArticle() })
+        }
+        infoColumn.addView(ownerActions)
         contentRoot.addView(infoBox)
 
-        val contentBox = dataBox(marginTop = 12).apply { applyDataBox(14) }
+        val contentBox = dataBox(marginTop = 0).apply {
+            applyDataBox(0)
+            cardElevation = 0f
+            strokeWidth = 0
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
+        }
         val articleColumn = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(15), dp(12), dp(15), dp(16))
+            setPadding(dp(15), dp(10), dp(15), dp(20))
         }
         contentBox.addView(articleColumn)
-        articleColumn.addView(sectionHeader("▌ 正文"))
         webView = WebView(this).apply {
             setBackgroundColor(Color.WHITE)
             settings.defaultTextEncodingName = "utf-8"
@@ -165,7 +192,7 @@ class ArticleDetailActivity : AppCompatActivity() {
             }
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                dp(320),
+                dp(360),
             )
         }
         articleColumn.addView(webView)
@@ -176,7 +203,7 @@ class ArticleDetailActivity : AppCompatActivity() {
         articleColumn.addView(tagsRow)
         contentRoot.addView(contentBox)
 
-        commentsBox = dataBox(marginTop = 12).apply { applyDataBox(14) }
+        commentsBox = dataBox(marginTop = 12).apply { applyDataBox(0) }
         commentsColumn = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(0, dp(2), 0, dp(6))
@@ -243,6 +270,7 @@ class ArticleDetailActivity : AppCompatActivity() {
     }
 
     private fun render(article: Article) {
+        currentArticle = article
         title.text = article.title
         meta.text = "${article.typeName.orEmpty().ifBlank { "暂无分类" }} · ${article.displayTime()} · ${article.views()} 次阅读"
         authorName.text = article.authorName?.takeIf { it.isNotBlank() } ?: "站长"
@@ -259,7 +287,7 @@ class ArticleDetailActivity : AppCompatActivity() {
         }
 
         val coverUrl = AppGraph.repository.absoluteUrl(article.coverPath())
-        coverCard.visibility = if (coverUrl.isNotBlank()) View.VISIBLE else View.GONE
+        coverCard.visibility = View.GONE
         if (coverUrl.isNotBlank()) {
             Glide.with(cover)
                 .load(coverUrl)
@@ -268,9 +296,10 @@ class ArticleDetailActivity : AppCompatActivity() {
                 .into(cover)
         }
 
+        ownerActions.visibility = if (canManage(article)) View.VISIBLE else View.GONE
         webView.loadDataWithBaseURL(
             AppGraph.apiClient.baseUrl,
-            htmlDocument(article.content.orEmpty()),
+            MarkdownRenderer.document(article.content.orEmpty(), canReadHidden = true),
             "text/html",
             "utf-8",
             null,
@@ -383,40 +412,54 @@ class ArticleDetailActivity : AppCompatActivity() {
         )
     }
 
-    private fun openSearch() {
+    private fun openEditor() {
         startActivity(
-            Intent(this, cc.kkano.blog.ui.feature.GenericListActivity::class.java)
-                .putExtra(cc.kkano.blog.ui.feature.GenericListActivity.EXTRA_TITLE, "搜索")
-                .putExtra(cc.kkano.blog.ui.feature.GenericListActivity.EXTRA_ENDPOINT, ApiRoutes.SEARCH_UNIAPP)
-                .putExtra(cc.kkano.blog.ui.feature.GenericListActivity.EXTRA_MODE, FeatureMode.LIST.name),
+            Intent(this, ArticleEditorActivity::class.java)
+                .putExtra(ArticleEditorActivity.EXTRA_ARTICLE_ID, articleId),
         )
     }
 
-    private fun htmlDocument(raw: String): String {
-        val base = AppGraph.apiClient.baseUrl.trimEnd('/')
-        val normalized = raw.replace(Regex("""src=["'](/[^"']+)["']""")) { match ->
-            match.value.replace(match.groupValues[1], base + match.groupValues[1])
+    private fun confirmDeleteArticle() {
+        AlertDialog.Builder(this)
+            .setTitle("确认删除")
+            .setMessage("确定要删除这篇文章吗？删除后无法恢复。")
+            .setNegativeButton("取消", null)
+            .setPositiveButton("删除") { _, _ ->
+                lifecycleScope.launch {
+                    runCatching { AppGraph.repository.deleteArticle(articleId) }
+                        .onSuccess {
+                            Snackbar.make(contentRoot, "删除成功", Snackbar.LENGTH_SHORT).show()
+                            finish()
+                        }
+                        .onFailure {
+                            Snackbar.make(contentRoot, it.message ?: "删除失败", Snackbar.LENGTH_SHORT).show()
+                        }
+                }
+            }
+            .show()
+    }
+
+    private fun canManage(article: Article): Boolean {
+        val user = AppGraph.repository.cachedUser() ?: return false
+        return article.authorId == user.id || user.primaryRole().contains("admin", ignoreCase = true)
+    }
+
+    private fun ownerButton(textValue: String, danger: Boolean = false, onClick: () -> Unit): TextView {
+        return TextView(this).apply {
+            text = textValue
+            applyTitleStyle(13f)
+            setTextColor(if (danger) Color.WHITE else KkColors.black)
+            gravity = Gravity.CENTER
+            setRoundedBackground(if (danger) KkColors.danger else KkColors.orange, 999)
+            layoutParams = LinearLayout.LayoutParams(0, dp(40), 1f).apply {
+                setMargins(dp(4), 0, dp(4), 0)
+            }
+            setOnClickListener { onClick() }
         }
-        return """
-            <!doctype html>
-            <html>
-            <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>
-                    body{margin:0;padding:0;color:#252932;font-size:16px;line-height:1.82;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','HarmonyOS Sans SC',sans-serif;word-break:break-word;}
-                    p{margin:0 0 14px;}
-                    img,video{max-width:100%;height:auto;border-radius:12px;background:#edf0f4;}
-                    pre,code{white-space:pre-wrap;background:#f7f8fa;border-radius:10px;color:#15171c;}
-                    pre{padding:12px;overflow:auto;}
-                    blockquote{margin:12px 0;padding:10px 14px;border-left:4px solid #15171c;background:#f7f8fa;border-radius:10px;color:#3b414c;}
-                    table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;}
-                    th,td{border:1px solid #e7e9ee;padding:8px;}
-                    a{color:#ff7a36;text-decoration:none;}
-                </style>
-            </head>
-            <body>$normalized</body>
-            </html>
-        """.trimIndent()
+    }
+
+    private fun openSearch() {
+        startActivity(Intent(this, cc.kkano.blog.ui.search.SearchActivity::class.java))
     }
 
     companion object {

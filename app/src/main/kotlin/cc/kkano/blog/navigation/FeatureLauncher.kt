@@ -7,9 +7,11 @@ import cc.kkano.blog.ui.feature.FeatureHubActivity
 import cc.kkano.blog.ui.feature.FeatureInfoActivity
 import cc.kkano.blog.ui.feature.GenericListActivity
 import cc.kkano.blog.ui.account.SocialMediaActivity
+import cc.kkano.blog.ui.article.ArticleEditorActivity
 import cc.kkano.blog.ui.dynamics.DynamicEditorActivity
 import cc.kkano.blog.ui.login.LoginActivity
-import cc.kkano.blog.ui.login.QrConfirmActivity
+import cc.kkano.blog.ui.login.QrScannerActivity
+import cc.kkano.blog.ui.search.SearchActivity
 
 object FeatureLauncher {
     fun openHub(context: Context, section: String? = null) {
@@ -23,8 +25,10 @@ object FeatureLauncher {
         when {
             spec.route == "pages/user/login" -> context.startActivity(Intent(context, LoginActivity::class.java))
             spec.route == "pages/home/dynamicsadd" -> context.startActivity(Intent(context, DynamicEditorActivity::class.java))
-            spec.route == "pages/user/scan" -> context.startActivity(Intent(context, QrConfirmActivity::class.java))
+            spec.route == "pages/user/post" -> context.startActivity(Intent(context, ArticleEditorActivity::class.java))
+            spec.route == "pages/user/scan" -> context.startActivity(Intent(context, QrScannerActivity::class.java))
             spec.route == "pages/user/media" -> context.startActivity(Intent(context, SocialMediaActivity::class.java))
+            spec.route == "pages/contents/search" -> context.startActivity(Intent(context, SearchActivity::class.java))
             spec.mode.name.startsWith("FORM_") -> context.startActivity(formIntent(context, spec))
             spec.endpoint != null -> context.startActivity(listIntent(context, spec))
             else -> context.startActivity(infoIntent(context, spec))

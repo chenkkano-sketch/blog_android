@@ -29,6 +29,18 @@ class BlogRepository(
         return root.readDataObject(Article::class.java)
     }
 
+    suspend fun publishArticle(body: Map<String, Any?>): JsonObject {
+        return api.post(ApiRoutes.ARTICLES, body)
+    }
+
+    suspend fun updateArticle(id: Long, body: Map<String, Any?>): JsonObject {
+        return api.put(ApiRoutes.article(id), body)
+    }
+
+    suspend fun deleteArticle(id: Long): JsonObject {
+        return api.delete(ApiRoutes.article(id))
+    }
+
     suspend fun incrementArticleView(id: Long) {
         runCatching { api.post(ApiRoutes.articleView(id), emptyMap<String, Any?>()) }
     }
@@ -53,8 +65,21 @@ class BlogRepository(
         return api.post(ApiRoutes.DYNAMICS, body)
     }
 
+    suspend fun dynamic(id: Long): Dynamic {
+        val root = api.get(ApiRoutes.dynamic(id))
+        return root.readDataObject(Dynamic::class.java)
+    }
+
     suspend fun updateDynamic(id: Long, body: Map<String, Any?>): JsonObject {
         return api.put(ApiRoutes.dynamic(id), body)
+    }
+
+    suspend fun deleteDynamic(id: Long): JsonObject {
+        return api.delete(ApiRoutes.dynamic(id))
+    }
+
+    suspend fun likeDynamic(id: Long): JsonObject {
+        return api.post(ApiRoutes.dynamicLike(id), emptyMap<String, Any?>())
     }
 
     suspend fun uploadMedia(fileName: String, bytes: ByteArray, mimeType: String): String {
@@ -118,12 +143,28 @@ class BlogRepository(
         return root.readJsonList()
     }
 
+    suspend fun search(
+        module: String,
+        keyword: String,
+        page: Int = 1,
+        limit: Int = 10,
+    ): JsonObject {
+        return api.get(
+            ApiRoutes.SEARCH_UNIAPP,
+            mapOf("module" to module, "keyword" to keyword, "page" to page, "limit" to limit),
+        )
+    }
+
     suspend fun post(endpoint: String, body: Map<String, Any?>): JsonObject {
         return api.post(endpoint, body)
     }
 
     suspend fun put(endpoint: String, body: Map<String, Any?>): JsonObject {
         return api.put(endpoint, body)
+    }
+
+    suspend fun delete(endpoint: String): JsonObject {
+        return api.delete(endpoint)
     }
 
     fun cachedUser(): User? {
