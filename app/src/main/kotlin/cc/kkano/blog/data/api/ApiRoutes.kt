@@ -36,4 +36,7 @@ object ApiRoutes {
     fun dynamicLike(id: Long) = "api/dynamics/$id/like"
     fun dynamic(id: Long) = "api/dynamics/$id"
     fun media(id: Long) = "api/media/$id"
+    fun comment(id: Long) = "api/comments/$id"
+    fun friendLink(id: Long) = "api/friend-links/$id"
+    fun friendLinkAudit(id: Long) = "api/friend-links/$id/audit"
 }

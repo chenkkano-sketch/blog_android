@@ -415,6 +415,7 @@ class ArticleEditorActivity : AppCompatActivity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(12), dp(16), dp(18))
+            background = roundedDrawable(Color.WHITE, 24)
         }
         root.addView(TextView(this).apply {
             text = "选择分类"
@@ -430,6 +431,7 @@ class ArticleEditorActivity : AppCompatActivity() {
         }
         dialog.setContentView(root)
         dialog.show()
+        styleSheet(dialog)
     }
 
     private fun showTagPicker() {
@@ -437,6 +439,7 @@ class ArticleEditorActivity : AppCompatActivity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(12), dp(16), dp(18))
+            background = roundedDrawable(Color.WHITE, 24)
         }
         root.addView(sectionHeader("选择标签", "新建") { showCreateTagDialog(dialog) })
         val scroll = ScrollView(this).apply {
@@ -462,11 +465,12 @@ class ArticleEditorActivity : AppCompatActivity() {
         root.addView(scroll)
         dialog.setContentView(root)
         dialog.show()
+        styleSheet(dialog)
     }
 
     private fun showCreateTagDialog(parent: BottomSheetDialog) {
         val input = EditText(this).apply { hint = "标签名称" }
-        AlertDialog.Builder(this)
+        val alert = AlertDialog.Builder(this)
             .setTitle("创建标签")
             .setView(input)
             .setNegativeButton("取消", null)
@@ -480,9 +484,10 @@ class ArticleEditorActivity : AppCompatActivity() {
                             loadTags()
                         }
                         .onFailure { Toast.makeText(this@ArticleEditorActivity, it.message ?: "创建失败", Toast.LENGTH_SHORT).show() }
-                }
+                    }
             }
             .show()
+        styleAlert(alert)
     }
 
     private fun showCoverOptions() {
@@ -490,6 +495,7 @@ class ArticleEditorActivity : AppCompatActivity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(12), dp(16), dp(18))
+            background = roundedDrawable(Color.WHITE, 24)
         }
         root.addView(sheetRow("从文件上传", false) {
             dialog.dismiss()
@@ -508,6 +514,7 @@ class ArticleEditorActivity : AppCompatActivity() {
         }
         dialog.setContentView(root)
         dialog.show()
+        styleSheet(dialog)
     }
 
     private fun showMediaPicker(target: String) {
@@ -515,6 +522,7 @@ class ArticleEditorActivity : AppCompatActivity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(12), dp(16), dp(18))
+            background = roundedDrawable(Color.WHITE, 24)
         }
         root.addView(TextView(this).apply {
             text = if (target == "cover") "选择封面" else "插入图片到编辑器"
@@ -528,6 +536,7 @@ class ArticleEditorActivity : AppCompatActivity() {
         })
         dialog.setContentView(root)
         dialog.show()
+        styleSheet(dialog)
         lifecycleScope.launch {
             runCatching { repository.genericList(ApiRoutes.MEDIA, limit = 60) }
                 .onSuccess { list ->
@@ -624,6 +633,7 @@ class ArticleEditorActivity : AppCompatActivity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(12), dp(16), dp(18))
+            background = roundedDrawable(Color.WHITE, 24)
         }
         root.addView(TextView(this).apply {
             text = "表情"
@@ -637,6 +647,7 @@ class ArticleEditorActivity : AppCompatActivity() {
         })
         dialog.setContentView(root)
         dialog.show()
+        styleSheet(dialog)
         lifecycleScope.launch {
             runCatching { repository.genericList(ApiRoutes.EMOJI, limit = 100) }
                 .onSuccess { groups ->
@@ -687,11 +698,12 @@ class ArticleEditorActivity : AppCompatActivity() {
 
     private fun showHeadingPicker() {
         val levels = arrayOf("标题 1", "标题 2", "标题 3", "标题 4", "标题 5")
-        AlertDialog.Builder(this)
+        val alert = AlertDialog.Builder(this)
             .setItems(levels) { _, which ->
                 insertText("\n${"#".repeat(which + 1)} 标题文字")
             }
             .show()
+        styleAlert(alert)
     }
 
     private fun showLinkDialog() {
@@ -703,7 +715,7 @@ class ArticleEditorActivity : AppCompatActivity() {
         val url = EditText(this).apply { hint = "http(s)://" }
         box.addView(title)
         box.addView(url)
-        AlertDialog.Builder(this)
+        val alert = AlertDialog.Builder(this)
             .setTitle("插入外部链接")
             .setView(box)
             .setNegativeButton("取消", null)
@@ -714,6 +726,7 @@ class ArticleEditorActivity : AppCompatActivity() {
                 insertText("[${title.text}](${url.text})")
             }
             .show()
+        styleAlert(alert)
     }
 
     private fun togglePreview() {
@@ -834,6 +847,17 @@ class ArticleEditorActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(52))
             setOnClickListener { onClick() }
         }
+    }
+
+    private fun styleSheet(dialog: BottomSheetDialog) {
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+    }
+
+    private fun styleAlert(dialog: AlertDialog) {
+        dialog.window?.setBackgroundDrawable(roundedDrawable(Color.WHITE, 18))
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(KkColors.orange)
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(KkColors.muted)
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setTextColor(KkColors.black)
     }
 
     private fun idOf(item: JsonObject): Long {

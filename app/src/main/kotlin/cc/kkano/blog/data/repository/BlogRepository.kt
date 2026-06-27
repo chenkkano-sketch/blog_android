@@ -129,6 +129,46 @@ class BlogRepository(
         return api.post(ApiRoutes.MEDIA_BATCH_DELETE, mapOf("ids" to ids))
     }
 
+    suspend fun commentsRoot(
+        type: Int,
+        page: Int = 1,
+        limit: Int = 20,
+        targetId: Long? = null,
+    ): JsonObject {
+        return api.get(
+            ApiRoutes.COMMENTS,
+            buildMap {
+                put("type", type)
+                put("page", page)
+                put("limit", limit)
+                if (targetId != null && targetId > 0L) put("target_id", targetId)
+            },
+        )
+    }
+
+    suspend fun createComment(body: Map<String, Any?>): JsonObject {
+        return api.post(ApiRoutes.COMMENTS, body.filterValues { it != null && it.toString().isNotBlank() })
+    }
+
+    suspend fun friendLinksRoot(status: Int, page: Int = 1, limit: Int = 20): JsonObject {
+        return api.get(
+            ApiRoutes.FRIEND_LINKS_MANAGE,
+            mapOf("status" to status, "page" to page, "limit" to limit),
+        )
+    }
+
+    suspend fun auditFriendLink(id: Long, status: Int): JsonObject {
+        return api.post(ApiRoutes.friendLinkAudit(id), mapOf("status" to status))
+    }
+
+    suspend fun updateFriendLink(id: Long, body: Map<String, Any?>): JsonObject {
+        return api.put(ApiRoutes.friendLink(id), body)
+    }
+
+    suspend fun deleteFriendLink(id: Long): JsonObject {
+        return api.delete(ApiRoutes.friendLink(id))
+    }
+
     suspend fun markQrScanned(sceneId: String): JsonObject {
         return api.post(ApiRoutes.QR_MARK_SCANNED, mapOf("scene_id" to sceneId))
     }

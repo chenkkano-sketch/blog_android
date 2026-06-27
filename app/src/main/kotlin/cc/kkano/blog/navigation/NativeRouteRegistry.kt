@@ -20,7 +20,7 @@ object NativeRouteRegistry {
         FeatureSpec("pages/user/password", "修改密码", "账户", ApiRoutes.USER_PASSWORD, FeatureMode.FORM_PASSWORD, "修改登录密码"),
         FeatureSpec("pages/user/media", "社交媒体", "账户", description = "QQ 群、官网和 GitHub"),
         FeatureSpec("pages/user/scan", "扫码确认", "账户", "api/login/qr/confirm", FeatureMode.FORM_QR_CONFIRM, "网页扫码登录确认"),
-        FeatureSpec("pages/user/inbox", "评论留言", "账户", ApiRoutes.COMMENTS, FeatureMode.LIST, "评论与留言列表"),
+        FeatureSpec("pages/user/inbox", "评论管理", "账户", ApiRoutes.COMMENTS, FeatureMode.LIST, "文章评论、留言板与动态评论管理"),
         FeatureSpec("pages/user/userpost", "我的文章", "账户", ApiRoutes.ARTICLES, FeatureMode.ARTICLE_LIST, "文章列表"),
         FeatureSpec("pages/user/post", "发布文章", "创作", ApiRoutes.ARTICLES, FeatureMode.FORM_ARTICLE, "发布博客文章"),
         FeatureSpec("pages/user/friendlink-manage", "友链管理", "管理", ApiRoutes.FRIEND_LINKS_MANAGE, FeatureMode.LIST, "友链申请与审核"),
@@ -33,7 +33,7 @@ object NativeRouteRegistry {
         FeatureSpec("pages/user/userbind", "账号绑定", "账户", "api/user/devices", FeatureMode.LIST, "登录设备与绑定状态"),
         FeatureSpec("pages/user/userlist", "用户列表", "管理", ApiRoutes.USERS, FeatureMode.LIST, "用户管理"),
 
-        FeatureSpec("pages/contents/comments", "评论列表", "内容", ApiRoutes.COMMENTS, FeatureMode.LIST, "公开评论"),
+        FeatureSpec("pages/contents/comments", "评论管理", "内容", ApiRoutes.COMMENTS, FeatureMode.LIST, "文章评论、留言板与动态评论管理"),
         FeatureSpec("pages/contents/commentsadd", "发表评论", "内容", ApiRoutes.COMMENTS, FeatureMode.FORM_COMMENT, "发布评论或留言"),
         FeatureSpec("pages/contents/contentlist", "文章列表", "内容", ApiRoutes.ARTICLES, FeatureMode.ARTICLE_LIST, "文章列表"),
         FeatureSpec("pages/contents/imagetoday", "图库", "内容", ApiRoutes.MEDIA, FeatureMode.LIST, "博客图库与媒体图片"),
@@ -54,7 +54,7 @@ object NativeRouteRegistry {
         FeatureSpec("pages/contents/myVideo", "我的媒体", "内容", ApiRoutes.MEDIA, FeatureMode.LIST, "媒体资源"),
 
         FeatureSpec("pages/user/manage", "管理中心", "管理", "api/dashboard/overview", FeatureMode.LIST, "管理入口"),
-        FeatureSpec("pages/manage/comments", "评论管理", "管理", "api/admin/comments", FeatureMode.LIST, "后台评论"),
+        FeatureSpec("pages/manage/comments", "评论管理", "管理", ApiRoutes.COMMENTS, FeatureMode.LIST, "文章评论、留言板与动态评论管理"),
         FeatureSpec("pages/manage/contents", "文章管理", "管理", "api/admin/articles", FeatureMode.LIST, "后台文章"),
         FeatureSpec("pages/manage/users", "用户管理", "管理", ApiRoutes.USERS, FeatureMode.LIST, "用户列表"),
         FeatureSpec("pages/manage/usersedit", "用户编辑", "管理", ApiRoutes.USERS, FeatureMode.LIST, "用户编辑"),

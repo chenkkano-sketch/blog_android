@@ -47,6 +47,16 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ui.comments.CommentManagerActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.friend.FriendLinkManagerActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".ui.dynamics.DynamicEditorActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
