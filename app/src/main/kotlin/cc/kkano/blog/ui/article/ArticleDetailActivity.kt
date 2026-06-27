@@ -19,10 +19,9 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import cc.kkano.blog.AppGraph
 import cc.kkano.blog.R
-import cc.kkano.blog.data.api.ApiRoutes
 import cc.kkano.blog.data.model.Article
 import cc.kkano.blog.data.model.Comment
-import cc.kkano.blog.navigation.FeatureMode
+import cc.kkano.blog.ui.comments.CommentComposerActivity
 import cc.kkano.blog.ui.common.KkColors
 import cc.kkano.blog.ui.common.applyBodyStyle
 import cc.kkano.blog.ui.common.applyDataBox
@@ -34,7 +33,6 @@ import cc.kkano.blog.ui.common.roundedDrawable
 import cc.kkano.blog.ui.common.sectionHeader
 import cc.kkano.blog.ui.common.setHtmlText
 import cc.kkano.blog.ui.common.setRoundedBackground
-import cc.kkano.blog.ui.feature.FeatureFormActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
@@ -402,13 +400,10 @@ class ArticleDetailActivity : AppCompatActivity() {
 
     private fun openCommentForm() {
         startActivity(
-            Intent(this, FeatureFormActivity::class.java)
-                .putExtra(FeatureFormActivity.EXTRA_TITLE, "发表评论")
-                .putExtra(FeatureFormActivity.EXTRA_ENDPOINT, ApiRoutes.COMMENTS)
-                .putExtra(FeatureFormActivity.EXTRA_MODE, FeatureMode.FORM_COMMENT.name)
-                .putExtra(FeatureFormActivity.EXTRA_ROUTE, "pages/contents/commentsadd")
-                .putExtra(FeatureFormActivity.EXTRA_DEFAULT_TYPE, "1")
-                .putExtra(FeatureFormActivity.EXTRA_DEFAULT_TARGET_ID, articleId.toString()),
+            Intent(this, CommentComposerActivity::class.java)
+                .putExtra(CommentComposerActivity.EXTRA_TITLE, "发表评论")
+                .putExtra(CommentComposerActivity.EXTRA_TYPE, 1)
+                .putExtra(CommentComposerActivity.EXTRA_TARGET_ID, articleId),
         )
     }
 

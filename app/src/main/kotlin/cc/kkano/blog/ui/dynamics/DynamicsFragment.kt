@@ -20,9 +20,8 @@ import cc.kkano.blog.AppGraph
 import cc.kkano.blog.data.api.ApiRoutes
 import cc.kkano.blog.data.model.Dynamic
 import cc.kkano.blog.navigation.FeatureLauncher
-import cc.kkano.blog.navigation.FeatureMode
 import cc.kkano.blog.navigation.NativeRouteRegistry
-import cc.kkano.blog.ui.feature.FeatureFormActivity
+import cc.kkano.blog.ui.comments.CommentComposerActivity
 import cc.kkano.blog.ui.common.KkColors
 import cc.kkano.blog.ui.common.UiState
 import cc.kkano.blog.ui.common.applyBodyStyle
@@ -181,13 +180,10 @@ class DynamicsFragment : Fragment() {
 
     private fun openDynamicComment(dynamic: Dynamic) {
         startActivity(
-            Intent(requireContext(), FeatureFormActivity::class.java)
-                .putExtra(FeatureFormActivity.EXTRA_TITLE, "评论动态")
-                .putExtra(FeatureFormActivity.EXTRA_ENDPOINT, ApiRoutes.COMMENTS)
-                .putExtra(FeatureFormActivity.EXTRA_MODE, FeatureMode.FORM_COMMENT.name)
-                .putExtra(FeatureFormActivity.EXTRA_ROUTE, "pages/contents/commentsadd")
-                .putExtra(FeatureFormActivity.EXTRA_DEFAULT_TYPE, "3")
-                .putExtra(FeatureFormActivity.EXTRA_DEFAULT_TARGET_ID, dynamic.id.toString()),
+            Intent(requireContext(), CommentComposerActivity::class.java)
+                .putExtra(CommentComposerActivity.EXTRA_TITLE, "评论动态")
+                .putExtra(CommentComposerActivity.EXTRA_TYPE, 3)
+                .putExtra(CommentComposerActivity.EXTRA_TARGET_ID, dynamic.id),
         )
     }
 

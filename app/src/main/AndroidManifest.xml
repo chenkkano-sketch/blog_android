@@ -34,6 +34,11 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ui.article.ArticleCollectionActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".ui.login.QrScannerActivity"
             android:exported="false" />
 
@@ -81,12 +86,32 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ui.comments.CommentComposerActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".ui.content.TaxonomyBrowserActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.content.ProjectShowcaseActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.content.UserDirectoryActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.content.AlbumBrowserActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.content.DynamicMediaActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 

@@ -11,10 +11,15 @@ import cc.kkano.blog.ui.account.AccountFormActivity
 import cc.kkano.blog.ui.account.AgreementActivity
 import cc.kkano.blog.ui.account.SettingsActivity
 import cc.kkano.blog.ui.account.SocialMediaActivity
+import cc.kkano.blog.ui.article.ArticleCollectionActivity
 import cc.kkano.blog.ui.article.ArticleEditorActivity
+import cc.kkano.blog.ui.comments.CommentComposerActivity
 import cc.kkano.blog.ui.comments.CommentManagerActivity
+import cc.kkano.blog.ui.content.AlbumBrowserActivity
+import cc.kkano.blog.ui.content.DynamicMediaActivity
 import cc.kkano.blog.ui.content.ProjectShowcaseActivity
 import cc.kkano.blog.ui.content.TaxonomyBrowserActivity
+import cc.kkano.blog.ui.content.UserDirectoryActivity
 import cc.kkano.blog.ui.dynamics.DynamicEditorActivity
 import cc.kkano.blog.ui.login.LoginActivity
 import cc.kkano.blog.ui.login.QrScannerActivity
@@ -44,11 +49,22 @@ object FeatureLauncher {
             spec.route == "pages/user/setup" -> context.startActivity(Intent(context, SettingsActivity::class.java))
             spec.route == "pages/user/agreement" -> context.startActivity(Intent(context, AgreementActivity::class.java))
             spec.route == "pages/user/manage" -> openHub(context, "管理")
+            spec.route == "pages/home/tool" -> openHub(context)
+            spec.route == "pages/home/user" -> context.startActivity(Intent(context, SettingsActivity::class.java))
+            spec.route == "pages/home/find" -> context.startActivity(Intent(context, DynamicMediaActivity::class.java))
             spec.route == "pages/home/dynamicsadd" -> context.startActivity(Intent(context, DynamicEditorActivity::class.java))
             spec.route == "pages/user/post" -> context.startActivity(Intent(context, ArticleEditorActivity::class.java))
+            spec.route in articleCollectionRoutes -> {
+                context.startActivity(
+                    Intent(context, ArticleCollectionActivity::class.java)
+                        .putExtra(ArticleCollectionActivity.EXTRA_ROUTE, spec.route)
+                        .putExtra(ArticleCollectionActivity.EXTRA_TITLE, spec.title),
+                )
+            }
             spec.route == "pages/user/scan" -> context.startActivity(Intent(context, QrScannerActivity::class.java))
             spec.route == "pages/user/media" -> context.startActivity(Intent(context, SocialMediaActivity::class.java))
             spec.route == "pages/user/userbind" -> context.startActivity(Intent(context, AccountBindingActivity::class.java))
+            spec.route == "pages/contents/commentsadd" -> context.startActivity(Intent(context, CommentComposerActivity::class.java))
             spec.route == "pages/user/inbox" || spec.route == "pages/user/usercomments" || spec.route == "pages/contents/comments" || spec.route == "pages/manage/comments" -> {
                 context.startActivity(Intent(context, CommentManagerActivity::class.java))
             }
@@ -66,6 +82,13 @@ object FeatureLauncher {
                 context.startActivity(Intent(context, TaxonomyBrowserActivity::class.java).putExtra(TaxonomyBrowserActivity.EXTRA_ROUTE, spec.route))
             }
             spec.route == "pages/contents/foreverblog" -> context.startActivity(Intent(context, ProjectShowcaseActivity::class.java))
+            spec.route == "pages/contents/userinfo" -> context.startActivity(Intent(context, UserDirectoryActivity::class.java))
+            spec.route == "pages/contents/wallpaper" || spec.route == "pages/contents/wallpaperInfo" -> {
+                context.startActivity(Intent(context, AlbumBrowserActivity::class.java))
+            }
+            spec.route == "pages/contents/video" || spec.route == "pages/contents/videoInfo" -> {
+                context.startActivity(Intent(context, DynamicMediaActivity::class.java))
+            }
             spec.route == "pages/manage/contents" -> context.startActivity(Intent(context, ArticleManagerActivity::class.java))
             spec.route == "pages/manage/metas" || spec.route == "pages/manage/metasedit" -> {
                 context.startActivity(Intent(context, MetaManagerActivity::class.java))
@@ -118,5 +141,14 @@ object FeatureLauncher {
         "pages/user/mailedit",
         "pages/user/password",
         "pages/user/password-manager",
+    )
+
+    private val articleCollectionRoutes = setOf(
+        "pages/home/home",
+        "pages/user/userpost",
+        "pages/contents/contentlist",
+        "pages/contents/info",
+        "pages/contents/randlist",
+        "pages/contents/recommend",
     )
 }
