@@ -47,6 +47,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.account.AboutActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.account.AccountFormActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

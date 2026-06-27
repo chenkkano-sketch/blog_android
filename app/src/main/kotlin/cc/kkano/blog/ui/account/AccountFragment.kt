@@ -32,7 +32,6 @@ import cc.kkano.blog.ui.common.margin
 import cc.kkano.blog.ui.common.menuRow
 import cc.kkano.blog.ui.common.roundedDrawable
 import cc.kkano.blog.ui.common.setRoundedBackground
-import cc.kkano.blog.ui.feature.FeatureInfoActivity
 import cc.kkano.blog.ui.login.LoginActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
@@ -347,13 +346,7 @@ class AccountFragment : Fragment() {
     }
 
     private fun openAbout() {
-        startActivity(
-            Intent(requireContext(), FeatureInfoActivity::class.java)
-                .putExtra(FeatureInfoActivity.EXTRA_TITLE, "关于我们")
-                .putExtra(FeatureInfoActivity.EXTRA_DESCRIPTION, "盔盔的小世界\nchenkkano@foxmail.com")
-                .putExtra(FeatureInfoActivity.EXTRA_ROUTE, "pages/user/about")
-                .putExtra(FeatureInfoActivity.EXTRA_MODE, "LOCAL_SETTINGS"),
-        )
+        startActivity(Intent(requireContext(), AboutActivity::class.java))
     }
 
     private data class Shortcut(
