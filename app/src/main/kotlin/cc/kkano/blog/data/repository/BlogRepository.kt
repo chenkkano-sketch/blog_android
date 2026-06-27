@@ -186,6 +186,43 @@ class BlogRepository(
         )
     }
 
+    suspend fun footprintsRoot(
+        status: String = "",
+        page: Int = 1,
+        limit: Int = 20,
+        keyword: String = "",
+    ): JsonObject {
+        return api.get(
+            ApiRoutes.FOOTPRINT_MANAGE,
+            buildMap {
+                put("page", page)
+                put("limit", limit)
+                if (status.isNotBlank()) put("status", status)
+                if (keyword.isNotBlank()) put("keyword", keyword)
+            },
+        )
+    }
+
+    suspend fun saveFootprint(id: Long, body: Map<String, Any?>): JsonObject {
+        return if (id > 0L) {
+            api.put(ApiRoutes.footprintManage(id), body)
+        } else {
+            api.post(ApiRoutes.FOOTPRINT_MANAGE, body)
+        }
+    }
+
+    suspend fun deleteFootprint(id: Long): JsonObject {
+        return api.delete(ApiRoutes.footprintManage(id))
+    }
+
+    suspend fun updateUser(id: Long, body: Map<String, Any?>): JsonObject {
+        return api.put(ApiRoutes.user(id), body)
+    }
+
+    suspend fun deleteUser(id: Long): JsonObject {
+        return api.delete(ApiRoutes.user(id))
+    }
+
     suspend fun markQrScanned(sceneId: String): JsonObject {
         return api.post(ApiRoutes.QR_MARK_SCANNED, mapOf("scene_id" to sceneId))
     }

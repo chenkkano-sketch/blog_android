@@ -42,4 +42,6 @@ object ApiRoutes {
     fun friendLinkAudit(id: Long) = "api/friend-links/$id/audit"
     fun tag(id: Long) = "api/tags/$id"
     fun articleCategory(id: Long) = "api/article-categories/$id"
+    fun footprintManage(id: Long) = "api/footprint-manage/$id"
+    fun user(id: Long) = "api/users/$id"
 }
