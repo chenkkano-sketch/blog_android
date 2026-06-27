@@ -169,6 +169,23 @@ class BlogRepository(
         return api.delete(ApiRoutes.friendLink(id))
     }
 
+    suspend fun adminArticlesRoot(
+        status: String,
+        page: Int = 1,
+        limit: Int = 20,
+        keyword: String = "",
+    ): JsonObject {
+        return api.get(
+            ApiRoutes.ADMIN_ARTICLES,
+            buildMap {
+                put("page", page)
+                put("limit", limit)
+                if (status.isNotBlank()) put("status", status)
+                if (keyword.isNotBlank()) put("keyword", keyword)
+            },
+        )
+    }
+
     suspend fun markQrScanned(sceneId: String): JsonObject {
         return api.post(ApiRoutes.QR_MARK_SCANNED, mapOf("scene_id" to sceneId))
     }

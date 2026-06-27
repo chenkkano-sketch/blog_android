@@ -55,11 +55,11 @@ object NativeRouteRegistry {
 
         FeatureSpec("pages/user/manage", "管理中心", "管理", "api/dashboard/overview", FeatureMode.LIST, "管理入口"),
         FeatureSpec("pages/manage/comments", "评论管理", "管理", ApiRoutes.COMMENTS, FeatureMode.LIST, "文章评论、留言板与动态评论管理"),
-        FeatureSpec("pages/manage/contents", "文章管理", "管理", "api/admin/articles", FeatureMode.LIST, "后台文章"),
+        FeatureSpec("pages/manage/contents", "文章管理", "管理", ApiRoutes.ADMIN_ARTICLES, FeatureMode.LIST, "待审核、已发布、搜索、审核、编辑与删除"),
         FeatureSpec("pages/manage/users", "用户管理", "管理", ApiRoutes.USERS, FeatureMode.LIST, "用户列表"),
         FeatureSpec("pages/manage/usersedit", "用户编辑", "管理", ApiRoutes.USERS, FeatureMode.LIST, "用户编辑"),
-        FeatureSpec("pages/manage/metas", "分类管理", "管理", "api/admin/article-categories", FeatureMode.LIST, "后台分类"),
-        FeatureSpec("pages/manage/metasedit", "分类编辑", "管理", "api/admin/article-categories", FeatureMode.LIST, "分类编辑"),
+        FeatureSpec("pages/manage/metas", "分类标签", "管理", ApiRoutes.ARTICLE_CATEGORIES, FeatureMode.LIST, "分类与标签管理"),
+        FeatureSpec("pages/manage/metasedit", "分类标签编辑", "管理", ApiRoutes.ARTICLE_CATEGORIES, FeatureMode.LIST, "分类与标签编辑"),
         FeatureSpec("pages/manage/media", "图床管理", "管理", ApiRoutes.MEDIA_MANAGE, FeatureMode.LIST, "图床统计、搜索、分类、上传、瀑布流与批量删除"),
         FeatureSpec("pages/manage/clean", "操作日志", "管理", "api/operation-logs", FeatureMode.LIST, "后台操作日志"),
     )

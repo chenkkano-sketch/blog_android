@@ -57,6 +57,16 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ui.manage.ArticleManagerActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.manage.MetaManagerActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".ui.dynamics.DynamicEditorActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

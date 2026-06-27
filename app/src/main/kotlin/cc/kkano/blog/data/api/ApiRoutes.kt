@@ -2,6 +2,7 @@ package cc.kkano.blog.data.api
 
 object ApiRoutes {
     const val ARTICLES = "api/articles"
+    const val ADMIN_ARTICLES = "api/admin/articles"
     const val ARTICLE_CATEGORIES = "api/article-categories"
     const val COMMENTS = "api/comments"
     const val DYNAMICS = "api/dynamics"
@@ -39,4 +40,6 @@ object ApiRoutes {
     fun comment(id: Long) = "api/comments/$id"
     fun friendLink(id: Long) = "api/friend-links/$id"
     fun friendLinkAudit(id: Long) = "api/friend-links/$id/audit"
+    fun tag(id: Long) = "api/tags/$id"
+    fun articleCategory(id: Long) = "api/article-categories/$id"
 }
