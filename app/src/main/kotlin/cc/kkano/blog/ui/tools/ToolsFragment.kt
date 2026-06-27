@@ -56,7 +56,7 @@ class ToolsFragment : Fragment() {
 
         listOf(
             ToolItem("密码管理", "修改和维护博客账号安全", R.drawable.ic_lock, "pages/user/password-manager"),
-            ToolItem("媒体资源", "查看博客图片与媒体文件", R.drawable.ic_image, "pages/user/media"),
+            ToolItem("媒体资源", "查看博客图片与媒体文件", R.drawable.ic_image, "pages/contents/imagetoday"),
             ToolItem("内容搜索", "搜索文章、动态和评论", R.drawable.ic_search, "pages/contents/search"),
             ToolItem("全部功能", "查看已迁移的博客原生页面", R.drawable.ic_tools, null),
         ).forEach { item ->

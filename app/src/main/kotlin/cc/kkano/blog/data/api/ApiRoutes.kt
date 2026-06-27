@@ -6,6 +6,7 @@ object ApiRoutes {
     const val ARTICLE_CATEGORIES = "api/article-categories"
     const val COMMENTS = "api/comments"
     const val DYNAMICS = "api/dynamics"
+    const val DASHBOARD_OVERVIEW = "api/dashboard/overview"
     const val EMOJI = "api/emoji"
     const val FOOTPRINT = "api/footprint"
     const val FOOTPRINT_MANAGE = "api/footprint-manage"

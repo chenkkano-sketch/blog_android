@@ -53,7 +53,7 @@ object NativeRouteRegistry {
         FeatureSpec("pages/contents/videoInfo", "动态详情", "内容", ApiRoutes.DYNAMICS, FeatureMode.LIST, "动态详情"),
         FeatureSpec("pages/contents/myVideo", "我的媒体", "内容", ApiRoutes.MEDIA, FeatureMode.LIST, "三栏媒体图库"),
 
-        FeatureSpec("pages/user/manage", "管理中心", "管理", "api/dashboard/overview", FeatureMode.LIST, "管理入口"),
+        FeatureSpec("pages/user/manage", "管理中心", "管理", ApiRoutes.DASHBOARD_OVERVIEW, FeatureMode.LIST, "后台总览与分组管理入口"),
         FeatureSpec("pages/manage/comments", "评论管理", "管理", ApiRoutes.COMMENTS, FeatureMode.LIST, "文章评论、留言板与动态评论管理"),
         FeatureSpec("pages/manage/contents", "文章管理", "管理", ApiRoutes.ADMIN_ARTICLES, FeatureMode.LIST, "待审核、已发布、搜索、审核、编辑与删除"),
         FeatureSpec("pages/manage/users", "用户管理", "管理", ApiRoutes.USERS, FeatureMode.LIST, "用户搜索、编辑与删除"),

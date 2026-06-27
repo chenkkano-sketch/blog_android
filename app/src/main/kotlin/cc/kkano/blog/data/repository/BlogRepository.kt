@@ -150,6 +150,14 @@ class BlogRepository(
         return api.post(ApiRoutes.COMMENTS, body.filterValues { it != null && it.toString().isNotBlank() })
     }
 
+    suspend fun deleteComment(id: Long): JsonObject {
+        return api.delete(ApiRoutes.comment(id))
+    }
+
+    suspend fun dashboardOverview(): JsonObject {
+        return api.get(ApiRoutes.DASHBOARD_OVERVIEW)
+    }
+
     suspend fun friendLinksRoot(status: Int, page: Int = 1, limit: Int = 20): JsonObject {
         return api.get(
             ApiRoutes.FRIEND_LINKS_MANAGE,
@@ -305,6 +313,20 @@ class BlogRepository(
         }
         val root = api.get(endpoint, query)
         return root.readJsonList()
+    }
+
+    suspend fun genericRoot(
+        endpoint: String,
+        page: Int = 1,
+        limit: Int = 20,
+        keyword: String = "",
+    ): JsonObject {
+        val query = buildMap<String, Any?> {
+            put("page", page)
+            put("limit", limit)
+            if (keyword.isNotBlank()) put("keyword", keyword)
+        }
+        return api.get(endpoint, query)
     }
 
     suspend fun search(

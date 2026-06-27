@@ -29,6 +29,7 @@ import cc.kkano.blog.ui.media.MediaManagerActivity
 import cc.kkano.blog.ui.friend.FriendLinkManagerActivity
 import cc.kkano.blog.ui.manage.ArticleManagerActivity
 import cc.kkano.blog.ui.manage.FootprintManagerActivity
+import cc.kkano.blog.ui.manage.ManageDashboardActivity
 import cc.kkano.blog.ui.manage.MetaManagerActivity
 import cc.kkano.blog.ui.manage.OperationLogActivity
 import cc.kkano.blog.ui.manage.UserManagerActivity
@@ -48,7 +49,7 @@ object FeatureLauncher {
             spec.route in accountFormRoutes -> context.startActivity(accountFormIntent(context, spec))
             spec.route == "pages/user/setup" -> context.startActivity(Intent(context, SettingsActivity::class.java))
             spec.route == "pages/user/agreement" -> context.startActivity(Intent(context, AgreementActivity::class.java))
-            spec.route == "pages/user/manage" -> openHub(context, "管理")
+            spec.route == "pages/user/manage" -> context.startActivity(Intent(context, ManageDashboardActivity::class.java))
             spec.route == "pages/home/tool" -> openHub(context)
             spec.route == "pages/home/user" -> context.startActivity(Intent(context, SettingsActivity::class.java))
             spec.route == "pages/home/find" -> context.startActivity(Intent(context, DynamicMediaActivity::class.java))

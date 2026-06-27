@@ -1,5 +1,6 @@
 package cc.kkano.blog.ui.comments
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Html
@@ -242,6 +243,7 @@ class CommentManagerActivity : AppCompatActivity() {
                         layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
                     })
                     addView(actionButton("回复") { showReplySheet(item) })
+                    addView(actionButton("删除", KkColors.danger) { confirmDelete(item) })
                 })
             })
         }
@@ -296,14 +298,16 @@ class CommentManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun actionButton(label: String, onClick: () -> Unit): TextView {
+    private fun actionButton(label: String, color: Int = KkColors.orange, onClick: () -> Unit): TextView {
         return TextView(this).apply {
             text = label
             applyTitleStyle(12.5f)
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
-            setRoundedBackground(KkColors.orange, 999)
-            layoutParams = LinearLayout.LayoutParams(dp(78), dp(34))
+            setRoundedBackground(color, 999)
+            layoutParams = LinearLayout.LayoutParams(dp(68), dp(34)).apply {
+                leftMargin = dp(7)
+            }
             setOnClickListener { onClick() }
         }
     }
@@ -388,6 +392,30 @@ class CommentManagerActivity : AppCompatActivity() {
                 Toast.makeText(this@CommentManagerActivity, it.message ?: "回复失败", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun confirmDelete(item: JsonObject) {
+        val id = idOf(item)
+        if (id <= 0L) {
+            Toast.makeText(this, "没有可删除的评论 ID", Toast.LENGTH_SHORT).show()
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle("确认删除")
+            .setMessage("确定删除「${displayName(item)}」的这条评论吗？")
+            .setNegativeButton("取消", null)
+            .setPositiveButton("删除") { _, _ ->
+                lifecycleScope.launch {
+                    runCatching { repository.deleteComment(id) }
+                        .onSuccess {
+                            Toast.makeText(this@CommentManagerActivity, "删除成功", Toast.LENGTH_SHORT).show()
+                            page = 1
+                            loadComments(isPage = false)
+                        }
+                        .onFailure { Toast.makeText(this@CommentManagerActivity, it.message ?: "删除失败", Toast.LENGTH_SHORT).show() }
+                }
+            }
+            .show()
     }
 
     private fun loadMore() {
