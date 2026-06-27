@@ -39,7 +39,6 @@ class AccountBindingActivity : AppCompatActivity() {
 
     private lateinit var contentColumn: LinearLayout
     private lateinit var deviceColumn: LinearLayout
-    private lateinit var emptyText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,12 +70,6 @@ class AccountBindingActivity : AppCompatActivity() {
             setPadding(dp(11), dp(12), dp(11), dp(22))
         }
         scroll.addView(contentColumn)
-        emptyText = TextView(this).apply {
-            text = "暂无登录设备"
-            applyBodyStyle(15f)
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(120))
-        }
         render()
         return root
     }
@@ -237,10 +230,19 @@ class AccountBindingActivity : AppCompatActivity() {
         if (!::deviceColumn.isInitialized) return
         deviceColumn.removeAllViews()
         if (devices.isEmpty()) {
-            deviceColumn.addView(emptyText)
+            deviceColumn.addView(emptyStateView())
             return
         }
         devices.forEach { deviceColumn.addView(deviceCard(it)) }
+    }
+
+    private fun emptyStateView(): TextView {
+        return TextView(this).apply {
+            text = "暂无登录设备"
+            applyBodyStyle(15f)
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(120))
+        }
     }
 
     private fun deviceCard(item: JsonObject): View {
