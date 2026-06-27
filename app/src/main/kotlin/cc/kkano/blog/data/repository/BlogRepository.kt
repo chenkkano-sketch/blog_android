@@ -91,6 +91,44 @@ class BlogRepository(
             ?: ""
     }
 
+    suspend fun mediaRoot(
+        page: Int = 1,
+        limit: Int = 20,
+        keyword: String = "",
+        category: String = "",
+    ): JsonObject {
+        return api.get(
+            ApiRoutes.MEDIA,
+            buildMap {
+                put("page", page)
+                put("limit", limit)
+                if (keyword.isNotBlank()) put("keyword", keyword)
+                if (category.isNotBlank()) put("category", category)
+            },
+        )
+    }
+
+    suspend fun mediaCategories(): List<JsonObject> {
+        return api.get(ApiRoutes.MEDIA_CATEGORIES).readJsonList()
+    }
+
+    suspend fun mediaStatistics(): JsonObject {
+        val root = api.get(ApiRoutes.MEDIA_STATISTICS)
+        return root["data"]?.takeIf { it.isJsonObject }?.asJsonObject ?: root
+    }
+
+    suspend fun updateMedia(id: Long, body: Map<String, Any?>): JsonObject {
+        return api.put(ApiRoutes.media(id), body)
+    }
+
+    suspend fun deleteMedia(id: Long): JsonObject {
+        return api.delete(ApiRoutes.media(id))
+    }
+
+    suspend fun batchDeleteMedia(ids: List<Long>): JsonObject {
+        return api.post(ApiRoutes.MEDIA_BATCH_DELETE, mapOf("ids" to ids))
+    }
+
     suspend fun markQrScanned(sceneId: String): JsonObject {
         return api.post(ApiRoutes.QR_MARK_SCANNED, mapOf("scene_id" to sceneId))
     }

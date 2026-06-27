@@ -42,6 +42,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.media.MediaManagerActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".ui.dynamics.DynamicEditorActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

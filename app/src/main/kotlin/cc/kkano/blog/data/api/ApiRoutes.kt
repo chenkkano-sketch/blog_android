@@ -16,6 +16,9 @@ object ApiRoutes {
     const val MEDIA = "api/media"
     const val MEDIA_MANAGE = "api/media-manage"
     const val MEDIA_UPLOAD = "api/media/upload"
+    const val MEDIA_CATEGORIES = "api/media/categories"
+    const val MEDIA_STATISTICS = "api/media-manage/statistics"
+    const val MEDIA_BATCH_DELETE = "api/media/batch-delete"
     const val PROJECTS = "api/projects"
     const val REFRESH = "api/refresh"
     const val REGISTER = "api/register"
@@ -32,4 +35,5 @@ object ApiRoutes {
     fun articleView(id: Long) = "api/articles/$id/view"
     fun dynamicLike(id: Long) = "api/dynamics/$id/like"
     fun dynamic(id: Long) = "api/dynamics/$id"
+    fun media(id: Long) = "api/media/$id"
 }

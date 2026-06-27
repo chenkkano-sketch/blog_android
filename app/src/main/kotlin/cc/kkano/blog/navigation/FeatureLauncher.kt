@@ -11,6 +11,7 @@ import cc.kkano.blog.ui.article.ArticleEditorActivity
 import cc.kkano.blog.ui.dynamics.DynamicEditorActivity
 import cc.kkano.blog.ui.login.LoginActivity
 import cc.kkano.blog.ui.login.QrScannerActivity
+import cc.kkano.blog.ui.media.MediaManagerActivity
 import cc.kkano.blog.ui.search.SearchActivity
 
 object FeatureLauncher {
@@ -28,6 +29,7 @@ object FeatureLauncher {
             spec.route == "pages/user/post" -> context.startActivity(Intent(context, ArticleEditorActivity::class.java))
             spec.route == "pages/user/scan" -> context.startActivity(Intent(context, QrScannerActivity::class.java))
             spec.route == "pages/user/media" -> context.startActivity(Intent(context, SocialMediaActivity::class.java))
+            spec.route == "pages/manage/media" -> context.startActivity(Intent(context, MediaManagerActivity::class.java))
             spec.route == "pages/contents/search" -> context.startActivity(Intent(context, SearchActivity::class.java))
             spec.mode.name.startsWith("FORM_") -> context.startActivity(formIntent(context, spec))
             spec.endpoint != null -> context.startActivity(listIntent(context, spec))

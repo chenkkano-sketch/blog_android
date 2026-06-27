@@ -60,7 +60,7 @@ object NativeRouteRegistry {
         FeatureSpec("pages/manage/usersedit", "用户编辑", "管理", ApiRoutes.USERS, FeatureMode.LIST, "用户编辑"),
         FeatureSpec("pages/manage/metas", "分类管理", "管理", "api/admin/article-categories", FeatureMode.LIST, "后台分类"),
         FeatureSpec("pages/manage/metasedit", "分类编辑", "管理", "api/admin/article-categories", FeatureMode.LIST, "分类编辑"),
-        FeatureSpec("pages/manage/media", "媒体管理", "管理", ApiRoutes.MEDIA_MANAGE, FeatureMode.LIST, "媒体管理"),
+        FeatureSpec("pages/manage/media", "图床管理", "管理", ApiRoutes.MEDIA_MANAGE, FeatureMode.LIST, "图床统计、搜索、分类、上传、瀑布流与批量删除"),
         FeatureSpec("pages/manage/clean", "操作日志", "管理", "api/operation-logs", FeatureMode.LIST, "后台操作日志"),
     )
 

@@ -148,6 +148,7 @@ class QrScannerActivity : AppCompatActivity() {
                 Intent(this@QrScannerActivity, QrConfirmActivity::class.java)
                     .putExtra(QrConfirmActivity.EXTRA_SCENE_ID, sceneId),
             )
+            finish()
         }
     }
 

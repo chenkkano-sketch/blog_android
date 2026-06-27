@@ -7,9 +7,11 @@ import android.provider.OpenableColumns
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.GridLayout
+import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -285,12 +287,14 @@ class DynamicEditorActivity : AppCompatActivity() {
             })
             addView(input)
             if (emoji) {
-                addView(TextView(this@DynamicEditorActivity).apply {
-                    text = "☺"
-                    textSize = 22f
-                    gravity = Gravity.CENTER
-                    setTextColor(KkColors.softMuted)
-                    layoutParams = LinearLayout.LayoutParams(dp(38), dp(42))
+                addView(ImageView(this@DynamicEditorActivity).apply {
+                    setImageResource(R.drawable.ic_message)
+                    setColorFilter(KkColors.softMuted)
+                    setPadding(dp(9), dp(9), dp(9), dp(9))
+                    background = roundedDrawable(Color.WHITE, 999, Color.parseColor("#E7E9EE"), 1)
+                    layoutParams = LinearLayout.LayoutParams(dp(38), dp(38)).apply {
+                        topMargin = if (alignTop) dp(2) else 0
+                    }
                     setOnClickListener {
                         showEmojiPicker(input)
                     }
@@ -471,73 +475,96 @@ class DynamicEditorActivity : AppCompatActivity() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(12), dp(16), dp(18))
+            background = roundedDrawable(Color.WHITE, 24)
         }
         root.addView(TextView(this).apply {
             text = "表情"
             applyTitleStyle(18f)
-            setPadding(0, dp(4), 0, dp(8))
+            gravity = Gravity.CENTER
+            setPadding(0, dp(4), 0, dp(4))
         })
         root.addView(TextView(this).apply {
             text = "插入到：${if (target === titleInput) "标题" else "内容"}"
             applyBodyStyle(12f)
-            setPadding(0, 0, 0, dp(10))
+            gravity = Gravity.CENTER
+            setPadding(0, 0, 0, dp(12))
         })
-        val listColumn = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+        val tabsRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 0, 0, dp(8))
         }
-        val scroller = ScrollView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                dp(420),
-            )
-            addView(listColumn)
+        root.addView(HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled = false
+            addView(tabsRow)
+        })
+        val grid = GridLayout(this).apply {
+            columnCount = 5
         }
-        root.addView(scroller)
+        root.addView(ScrollView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(382))
+            addView(grid)
+        })
         val loading = TextView(this).apply {
             text = "加载中..."
             applyBodyStyle(13f)
             gravity = Gravity.CENTER
             setPadding(0, dp(24), 0, dp(24))
         }
-        listColumn.addView(loading)
+        grid.addView(loading)
         dialog.setContentView(root)
         dialog.show()
+        dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        dialog.window?.setDimAmount(0f)
 
         lifecycleScope.launch {
             runCatching { repository.genericList(ApiRoutes.EMOJI, limit = 100) }
                 .onSuccess { groups ->
-                    listColumn.removeAllViews()
                     if (groups.isEmpty()) {
-                        listColumn.addView(emptyPanelText("暂无表情数据"))
+                        grid.removeAllViews()
+                        grid.addView(emptyPanelText("暂无表情数据"))
                     } else {
-                        groups.forEach { group -> listColumn.addView(emojiGroupView(group, target)) }
+                        renderEmojiTabs(groups, 0, tabsRow, grid, target)
                     }
                 }
                 .onFailure {
-                    listColumn.removeAllViews()
-                    listColumn.addView(emptyPanelText(it.message ?: "表情加载失败"))
+                    grid.removeAllViews()
+                    grid.addView(emptyPanelText(it.message ?: "表情加载失败"))
                 }
         }
     }
 
-    private fun emojiGroupView(group: JsonObject, target: EditText): View {
+    private fun renderEmojiTabs(
+        groups: List<JsonObject>,
+        selectedIndex: Int,
+        tabsRow: LinearLayout,
+        grid: GridLayout,
+        target: EditText,
+    ) {
+        tabsRow.removeAllViews()
+        groups.forEachIndexed { index, group ->
+            val groupName = displayValue(group, "name").ifBlank { "表情" }
+            tabsRow.addView(TextView(this).apply {
+                text = groupName
+                applyTitleStyle(13f)
+                gravity = Gravity.CENTER
+                setTextColor(if (index == selectedIndex) Color.WHITE else KkColors.text)
+                setRoundedBackground(
+                    if (index == selectedIndex) KkColors.black else Color.parseColor("#F4F5F7"),
+                    999,
+                )
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(36)).apply {
+                    setMargins(dp(3), 0, dp(7), 0)
+                }
+                setPadding(dp(14), 0, dp(14), 0)
+                setOnClickListener { renderEmojiTabs(groups, index, tabsRow, grid, target) }
+            })
+        }
+        grid.removeAllViews()
+        val group = groups[selectedIndex]
         val groupName = displayValue(group, "name").ifBlank { "表情" }
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(0, dp(8), 0, dp(10))
-        }
-        root.addView(TextView(this).apply {
-            text = groupName
-            applyTitleStyle(14f)
-            setPadding(0, 0, 0, dp(8))
-        })
-        val grid = GridLayout(this).apply {
-            columnCount = 5
-        }
-        root.addView(grid)
         val items = group["items"]?.takeIf { it.isJsonArray }?.asJsonArray ?: JsonArray()
         if (items.size() == 0) {
-            root.addView(emptyPanelText("该分类暂无表情"))
+            grid.addView(emptyPanelText("该分类暂无表情"))
         } else {
             items.forEach { element ->
                 if (element.isJsonObject) {
@@ -545,7 +572,6 @@ class DynamicEditorActivity : AppCompatActivity() {
                 }
             }
         }
-        return root
     }
 
     private fun emojiItem(groupName: String, item: JsonObject, target: EditText): View {
